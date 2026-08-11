@@ -385,6 +385,34 @@ services:
     environment:
       - "LOG_LEVEL=info"
       - "TZ=${TZ}"
+  crosswatch:
+    container_name: crosswatch
+    image: ghcr.io/cenodude/crosswatch:latest
+    restart: unless-stopped
+    depends_on:
+      - "diun"
+      - "container-mon"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=true"
+    ports:
+      - "8787:8787"
+    dns:
+      - "1.1.1.1"
+      - "9.9.9.9"
+    volumes:
+      - "${SERVICE_DIR}/crosswatch:/config"
+    healthcheck:
+      test: curl --fail http://localhost:8787 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "PGID=${PGID}"
+      - "PUID=${PUID}"
+      - "TZ=${TZ}"
+      - "UMASK=${UMASK}"
   homepage:
     container_name: homepage
     image: ghcr.io/gethomepage/homepage:latest

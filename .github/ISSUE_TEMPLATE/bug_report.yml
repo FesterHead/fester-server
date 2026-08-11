@@ -1,0 +1,60 @@
+name: Bug Report
+description: Create a report to help us reproduce and fix an issue with a container or service configuration.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug! Please fill out the information below.
+  - type: input
+    id: service
+    attributes:
+      label: Service / Container Name
+      description: Which container or service in `docker-compose.yaml` is affected?
+      placeholder: e.g. crosswatch
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Run service '...'
+        2. Inspect logs with 'docker logs ...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Container Logs / Command Output
+      description: Please copy and paste any relevant logs from `docker logs <container>` or terminal errors.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Info
+      description: OS version, Docker version, Docker Compose version.
+      placeholder: |
+        - OS: Ubuntu 24.04 LTS
+        - Docker version: 27.x
+        - Docker Compose version: v2.x
+    validations:
+      required: false
