@@ -1,0 +1,21 @@
+# Ignore the secret file
+.env
+
+# Ignore all subfolders (the container data)
+# This assumes the folders in your screenshot are data volumes
+bazarr/
+diun/
+dockhand/
+duckdns/
+emby/
+homepage/
+portainer/
+prowlarr/
+radarr/
+rating-poster-database/
+sabnzbd/
+seerr/
+sonarr/
+swag/
+transmission-openvpn/
+transmission-rush/
