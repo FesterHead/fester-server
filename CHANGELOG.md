@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Added `crosswatch` service to `docker-compose.yaml`.
 - Added `crosswatch` to `update.sh`.
+- Added `crosswatch` entry to [README.md](README.md) services table.
 - Added [AGENTS.md](AGENTS.md) with repository guidelines for AI coding assistants.
 - Added [CONTRIBUTING.md](CONTRIBUTING.md) with contribution instructions and standards.
 - Added [.github/copilot-instructions.md](.github/copilot-instructions.md) synchronized with [AGENTS.md](AGENTS.md).

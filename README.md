@@ -22,6 +22,7 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **Radarr**                 | `radarr`               | 7878                | Movie management                                 |
 | **Sonarr**                 | `sonarr`               | 8989                | TV show management                               |
 | **Seerr**                  | `seerr`                | 5056                | Media request management                         |
+| **Crosswatch**             | `crosswatch`           | 8787                | Cross-platform media server watch status sync    |
 | **Homepage**               | `homepage`             | 3333                | Dashboard for all services                       |
 | **Docker Socket Proxy**    | `dockerproxy`          | 127.0.0.1:2375      | Read‑only proxy for Docker socket                |
 | **DuckDNS**                | `duckdns`              | –                   | Dynamic DNS updater                              |
