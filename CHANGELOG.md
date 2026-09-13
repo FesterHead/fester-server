@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+- Configured `seerr` with `user: "${PUID}:${PGID}"` and `crosswatch` with `APP_UID` and `APP_GID` in `docker-compose.yaml` to run containers with `1026:100` (`steve:users`) file ownership.
+
 ## [1.2.0] - 2026-09-13
 
 ### Added

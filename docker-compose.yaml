@@ -361,6 +361,7 @@ services:
   seerr:
     container_name: seerr
     image: ghcr.io/seerr-team/seerr:latest
+    user: "${PUID}:${PGID}"
     init: true
     restart: unless-stopped
     depends_on:
@@ -409,6 +410,8 @@ services:
       start_period: 60s
       timeout: 10s
     environment:
+      - "APP_GID=${PGID}"
+      - "APP_UID=${PUID}"
       - "PGID=${PGID}"
       - "PUID=${PUID}"
       - "TZ=${TZ}"
