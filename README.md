@@ -22,6 +22,7 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **Radarr**                 | `radarr`               | 7878                | Movie management                                 |
 | **Sonarr**                 | `sonarr`               | 8989                | TV show management                               |
 | **Seerr**                  | `seerr`                | 5056                | Media request management                         |
+| **Crosswatch**             | `crosswatch`           | 8787                | Cross-platform media server watch status sync    |
 | **Homepage**               | `homepage`             | 3333                | Dashboard for all services                       |
 | **Docker Socket Proxy**    | `dockerproxy`          | 127.0.0.1:2375      | Read‑only proxy for Docker socket                |
 | **DuckDNS**                | `duckdns`              | –                   | Dynamic DNS updater                              |
@@ -171,27 +172,32 @@ Any other argument (or no argument) will launch the interactive mode.
 
 Key environment variables (defined in `.env`):
 
-| Variable                        | Purpose                            | Example              |
-| ------------------------------- | ---------------------------------- | -------------------- |
-| `OPENVPN_PROVIDER`              | VPN provider                       | `PIA`                |
-| `OPENVPN_CONFIG`                | VPN server location                | `ca_vancouver`       |
-| `OPENVPN_USERNAME` / `PASSWORD` | VPN credentials                    | `…`                  |
-| `LOCAL_NETWORK`                 | Local subnet for access            | `192.168.86.0/24`    |
-| `SERVICE_DIR`                   | Path to service configs            | `/home/steve/docker` |
-| `DATA_DIR`                      | Path to media storage              | `/home/steve/media`  |
-| `PUID` / `PGID`                 | User/group IDs for containers      | `1026` / `100`       |
-| `UMASK`                         | Default umask                      | `022`                |
-| `TZ`                            | Timezone                           | `Etc/UTC`            |
-| `SLACK_HOOK`                    | Slack webhook for notifications    | `…`                  |
-| `DUCKDNS_SUBDOMAINS` / `TOKEN`  | DuckDNS configuration              | `…`                  |
-| `SWAG_URL` / `SWAG_EMAIL`       | Domain and email for Let's Encrypt | `…` / `…`            |
+| Variable                        | Purpose                            | Example                |
+| ------------------------------- | ---------------------------------- | ---------------------- |
+| `SERVICE_DIR`                   | Path to service configs            | `/home/user/docker`    |
+| `DATA_DIR`                      | Path to media storage              | `/home/user/media`     |
+| `HOST_HOME_DIR`                 | Host home directory for mounts     | `/home`                |
+| `DOCKER_SOCK`                   | Path to Docker daemon socket       | `/var/run/docker.sock` |
+| `DNS_PRIMARY` / `DNS_SECONDARY` | DNS resolver IPs                   | `1.1.1.1` / `9.9.9.9`  |
+| `PUID` / `PGID`                 | User/group IDs for containers      | `1026` / `100`         |
+| `UMASK`                         | Default umask                      | `022`                  |
+| `TZ`                            | Timezone                           | `Etc/UTC`              |
+| `EMBY_GIDLIST`                  | Render/video group IDs for Emby    | `44,993`               |
+| `OPENVPN_PROVIDER`              | VPN provider                       | `PIA`                  |
+| `OPENVPN_CONFIG`                | VPN server location                | `ca_vancouver`         |
+| `OPENVPN_USERNAME` / `PASSWORD` | VPN credentials                    | `…`                    |
+| `LOCAL_NETWORK`                 | Local subnet for access            | `192.168.86.0/24`      |
+| `SLACK_HOOK`                    | Slack webhook for notifications    | `…`                    |
+| `DUCKDNS_SUBDOMAINS` / `TOKEN`  | DuckDNS configuration              | `…`                    |
+| `SWAG_URL` / `SWAG_EMAIL`       | Domain and email for Let's Encrypt | `…` / `…`              |
+| `PORT_<SERVICE>`                | Host port mappings for services    | `8080`, `3333`, etc.   |
 
-See the `.env` file for the full list.
+See the `.env-template` file for the full list.
 
 ## Directory Structure
 
 ```
-/home/steve/docker/
+/home/user/docker/
 ├── .env                    # Environment variables
 ├── docker-compose.yaml     # Main service definitions
 ├── update.sh               # Update script
@@ -200,7 +206,7 @@ See the `.env` file for the full list.
 └── service‑specific config directories (bazarr/, diun/, swag/, etc.)
 ```
 
-Each service has its own subdirectory under `SERVICE_DIR` (by default `/home/steve/docker`) for persistent configuration.
+Each service has its own subdirectory under `SERVICE_DIR` (by default `/home/user/docker`) for persistent configuration.
 
 ## License
 

@@ -30,6 +30,7 @@ function do_update() {
 
 services=("bazarr" \
           "container-mon" \
+          "crosswatch" \
           "diun" \
           "dockerproxy" \
           "dockhand" \

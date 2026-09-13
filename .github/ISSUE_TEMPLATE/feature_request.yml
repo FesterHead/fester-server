@@ -1,0 +1,37 @@
+name: Feature / Service Request
+description: Suggest a new Docker service or feature to add to the stack.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Propose a new service, configuration option, or improvement to this Docker stack.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear description of what the problem is (e.g. missing media sync, missing downloader).
+    validations:
+      required: false
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the Solution
+      description: Describe the service or feature you would like to see added.
+      placeholder: e.g. Add crosswatch container to synchronize Trakt watch status across media servers.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or features you've considered.
+    validations:
+      required: false
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any other context, Docker image URLs, or reference documentation here.
+    validations:
+      required: false

@@ -8,11 +8,11 @@ services:
       - "diun.enable=true"
     command: serve
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/diun:/data"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
       test: ["CMD", "sh", "-c", "pidof diun || exit 1"]
       interval: 60s
@@ -42,10 +42,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
       test: ["CMD", "sh", "-c", "pidof container-mon || exit 1"]
       interval: 60s
@@ -74,12 +74,12 @@ services:
       - "containermon.enable=true"
       - "diun.enable=false"
     ports:
-      - "9099:9099"
+      - "${PORT_TRANSMISSION_VPN}:9099"
     devices:
       - "/dev/net/tun"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/transmission-openvpn:/config"
       - "${DATA_DIR}/torrents-vpn:/downloads"
@@ -106,15 +106,15 @@ services:
       - "OPENVPN_PASSWORD=${OPENVPN_PASSWORD}"
       - "LOCAL_NETWORK=${LOCAL_NETWORK}"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60 --mssfix 1460 --mute-replay-warnings"
-      - "TRANSMISSION_RATIO_LIMIT=0"
+      - "TRANSMISSION_RATIO_LIMIT=${TRANSMISSION_RATIO_LIMIT}"
       - "TRANSMISSION_RATIO_LIMIT_ENABLED=true"
-      - "TRANSMISSION_IDLE_SEEDING_LIMIT=2"
+      - "TRANSMISSION_IDLE_SEEDING_LIMIT=${TRANSMISSION_IDLE_SEEDING_LIMIT}"
       - "TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED=true"
       - "TRANSMISSION_DOWNLOAD_DIR=/downloads/complete"
       - "TRANSMISSION_INCOMPLETE_DIR=/downloads/incomplete"
-      - "TRANSMISSION_UPLOAD_LIMIT=250"
+      - "TRANSMISSION_UPLOAD_LIMIT=${TRANSMISSION_UPLOAD_LIMIT}"
       - "TRANSMISSION_UPLOAD_LIMIT_ENABLED=true"
-      - "TRANSMISSION_SPEED_LIMIT_UP=250"
+      - "TRANSMISSION_SPEED_LIMIT_UP=${TRANSMISSION_SPEED_LIMIT_UP}"
       - "TRANSMISSION_SPEED_LIMIT_UP_ENABLED=true"
       - "TRANSMISSION_WEB_UI=flood-for-transmission"
       - "TRANSMISSION_SCRAPE_PAUSED_TORRENTS_ENABLED=false"
@@ -131,12 +131,12 @@ services:
       - "containermon.enable=true"
       - "diun.enable=false"
     ports:
-      - "9091:9091"
-      - "51413:51413"
-      - "51413:51413/udp"
+      - "${PORT_TRANSMISSION_RUSH_WEB}:9091"
+      - "${PORT_TRANSMISSION_RUSH_PEER}:51413"
+      - "${PORT_TRANSMISSION_RUSH_PEER}:51413/udp"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/transmission-rush:/config"
       - "${DATA_DIR}/torrents-rush:/downloads"
@@ -162,11 +162,11 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "8080:8080"
-      - "9090:9090"
+      - "${PORT_SABNZBD_HTTP}:8080"
+      - "${PORT_SABNZBD_HTTPS}:9090"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/sabnzbd:/config"
       - "${DATA_DIR}/usenet:/data/usenet"
@@ -192,10 +192,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "8191:8191"
+      - "${PORT_FLARESOLVERR}:8191"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     healthcheck:
       test: curl --fail http://localhost:8191 || exit 1
       interval: 60s
@@ -221,10 +221,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "9696:9696"
+      - "${PORT_PROWLARR}:9696"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/prowlarr:/config"
     healthcheck:
@@ -249,11 +249,11 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "8096:8096"
-      - "8920:8920"
+      - "${PORT_EMBY_HTTP}:8096"
+      - "${PORT_EMBY_HTTPS}:8920"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/emby:/config"
       - "${DATA_DIR}:/data"
@@ -269,7 +269,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
-      - "GIDLIST=44,993"
+      - "GIDLIST=${EMBY_GIDLIST}"
     devices:
       - "/dev/dri:/dev/dri"
   bazarr:
@@ -283,10 +283,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "6767:6767"
+      - "${PORT_BAZARR}:6767"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/bazarr:/config"
       - "${DATA_DIR}:/data"
@@ -312,10 +312,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "7878:7878"
+      - "${PORT_RADARR}:7878"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/radarr:/config"
       - "${DATA_DIR}:/data"
@@ -341,10 +341,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "8989:8989"
+      - "${PORT_SONARR}:8989"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/sonarr:/config"
       - "${DATA_DIR}:/data"
@@ -370,10 +370,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "5056:5055"
+      - "${PORT_SEERR}:5055"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/seerr:/app/config"
     healthcheck:
@@ -385,6 +385,34 @@ services:
     environment:
       - "LOG_LEVEL=info"
       - "TZ=${TZ}"
+  crosswatch:
+    container_name: crosswatch
+    image: ghcr.io/cenodude/crosswatch:latest
+    restart: unless-stopped
+    depends_on:
+      - "diun"
+      - "container-mon"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=true"
+    ports:
+      - "${PORT_CROSSWATCH}:8787"
+    dns:
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
+    volumes:
+      - "${SERVICE_DIR}/crosswatch:/config"
+    healthcheck:
+      test: curl --fail http://localhost:8787 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "PGID=${PGID}"
+      - "PUID=${PUID}"
+      - "TZ=${TZ}"
+      - "UMASK=${UMASK}"
   homepage:
     container_name: homepage
     image: ghcr.io/gethomepage/homepage:latest
@@ -396,15 +424,15 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "3333:3000"
+      - "${PORT_HOMEPAGE}:3000"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
-      - "${SERVICE_DIR}/../..:/home"
+      - "${HOST_HOME_DIR}:/home"
       - "${SERVICE_DIR}/homepage:/app/config"
       - "${SERVICE_DIR}/homepage/icons:/app/public/icons"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
       interval: 60s
@@ -422,20 +450,20 @@ services:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
     restart: unless-stopped
     ports:
-      - 127.0.0.1:2375:2375
+      - "127.0.0.1:${PORT_DOCKERPROXY}:2375"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro # Mounted as read-only
+      - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
     environment:
-      - STATS_PORT=1234 # This opens a separate port for health checks/stats
-      - STATS_NON_INTERACTIVE=1 # This allows the healthcheck to succeed without needing a username/password
-      - CONTAINERS=1 # Allow access to viewing containers
-      - SERVICES=1 # Allow access to viewing services (necessary when using Docker Swarm)
-      - TASKS=1 # Allow access to viewing tasks (necessary when using Docker Swarm)
-      - POST=0 # Disallow any POST operations (effectively read-only)
-      - VERSION=1
+      - "STATS_PORT=1234"
+      - "STATS_NON_INTERACTIVE=1"
+      - "CONTAINERS=1"
+      - "SERVICES=1"
+      - "TASKS=1"
+      - "POST=0"
+      - "VERSION=1"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     healthcheck:
       test:
         [
@@ -461,8 +489,8 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/duckdns:/config"
     healthcheck:
@@ -490,14 +518,14 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "443:443"
-      - "80:80"
-      - "81:81"
+      - "${PORT_SWAG_HTTPS}:443"
+      - "${PORT_SWAG_HTTP}:80"
+      - "${PORT_SWAG_DASHBOARD}:81"
     cap_add:
       - "NET_ADMIN"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/swag:/config"
       - "${SERVICE_DIR}/emby/logs:/logs/emby:ro"
@@ -530,10 +558,10 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "8750:8750"
+      - "${PORT_RPDB}:8750"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
       - "${SERVICE_DIR}/rating-poster-database:/rpdb/config"
       - "${DATA_DIR}/movies:/rpdb/mounts/movies"
@@ -555,13 +583,13 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
-      - "3210:3000"
+      - "${PORT_DOCKHAND}:3000"
     dns:
-      - "1.1.1.1"
-      - "9.9.9.9"
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/home/steve/docker:/home/steve/docker"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
+      - "${SERVICE_DIR}:${SERVICE_DIR}"
       - "${SERVICE_DIR}/dockhand/data:/app/data"
     healthcheck:
       test: curl --fail http://localhost:3000 || exit 1

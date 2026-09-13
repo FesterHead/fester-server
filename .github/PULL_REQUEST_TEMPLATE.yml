@@ -1,0 +1,23 @@
+name: Pull Request
+description: Default pull request template for proposing changes to docker-compose services.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contributing! Please fill out the sections below.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary of Changes
+      description: Provide a concise summary of the changes proposed in this PR.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Followed service structure rules in [AGENTS.md](../AGENTS.md) / [CONTRIBUTING.md](../CONTRIBUTING.md)
+        - label: Updated `update.sh` (if adding/removing services) and kept array sorted alphabetically
+        - label: Updated [CHANGELOG.md](../CHANGELOG.md) adhering to Keep a Changelog & SemVer
+        - label: Tested with `docker compose config`
