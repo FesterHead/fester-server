@@ -30,18 +30,19 @@ When adding or modifying services in `docker-compose.yaml`, adhere strictly to t
      ```
 
 3. **Networking & DNS**:
-   - Explicitly define DNS resolution:
+   - Explicitly define DNS resolution using environment variables:
      ```yaml
      dns:
-       - "1.1.1.1"
-       - "9.9.9.9"
+       - "${DNS_PRIMARY}"
+       - "${DNS_SECONDARY}"
      ```
-   - Format port mappings as double-quoted strings (e.g., `- "8080:8080"`).
+   - Format port mappings as double-quoted strings, parameterizing the host port with environment variables where applicable (e.g., `- "${PORT_SERVICE}:8080"` or `- "8080:8080"`).
 
 4. **Volumes & Storage**:
    - **Bind Mounts Only**: Use host bind mounts relative to environment variables rather than Docker named volumes.
    - Standard config volume: `"${SERVICE_DIR}/<service-name>:/config"` (or `/app/config`).
    - Standard data volume: `"${DATA_DIR}/<path>:/data"`.
+   - Standard docker socket: `"${DOCKER_SOCK}:/var/run/docker.sock"`.
 
 5. **Environment Variables**:
    - Format as an array of double-quoted strings (`- "KEY=${VAR}"`).
@@ -74,6 +75,12 @@ When adding or modifying services in `docker-compose.yaml`, adhere strictly to t
 
 - Document all structural, service, and configuration changes in [CHANGELOG.md](../CHANGELOG.md).
 - Adhere to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+### Git Workflow & Commit Rules
+
+- **NO Automated `git add` or `git commit`**: The agent MUST NEVER run `git add`, `git commit`, or `git push` commands, and must NOT prompt or ask the user to run them.
+- **User-Managed Commits**: All git staging, committing, and pushing is handled exclusively by the user.
+- **Commit Messages**: Do NOT generate or propose commit messages unless the user explicitly requests assistance with one.
 
 ### Instruction Synchronization
 
