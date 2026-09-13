@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-13
+
 ### Added
 - Added Git workflow and commit rules to [AGENTS.md](AGENTS.md) and [.github/copilot-instructions.md](.github/copilot-instructions.md) specifying user-managed commits and no automated git commands.
 - Added environment variable configurations to [.env](.env) and [.env-template](.env-template) for DNS resolvers (`DNS_PRIMARY`, `DNS_SECONDARY`), Docker daemon socket (`DOCKER_SOCK`), host home directory (`HOST_HOME_DIR`), Emby hardware transcoding GIDs (`EMBY_GIDLIST`), Transmission limits, and host port mappings (`PORT_<SERVICE>`).
