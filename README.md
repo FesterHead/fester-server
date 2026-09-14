@@ -29,6 +29,7 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **SWAG**                   | `swag`                 | 80, 81, 443         | Nginx reverse proxy with Let's Encrypt           |
 | **Rating Poster Database** | `rpdb-folders`         | 8750                | Fetches ratings and posters for media            |
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
+| **ModernUO**               | `modernuo`             | 2593                | Ultima Online emulator server                    |
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.
 
@@ -190,6 +191,7 @@ Key environment variables (defined in `.env`):
 | `SLACK_HOOK`                    | Slack webhook for notifications    | `…`                    |
 | `DUCKDNS_SUBDOMAINS` / `TOKEN`  | DuckDNS configuration              | `…`                    |
 | `SWAG_URL` / `SWAG_EMAIL`       | Domain and email for Let's Encrypt | `…` / `…`              |
+| `MODERNUO_SKILL_CAP`            | ModernUO player skill cap (default: 7000) | `100000`               |
 | `PORT_<SERVICE>`                | Host port mappings for services    | `8080`, `3333`, etc.   |
 
 See the `.env-template` file for the full list.

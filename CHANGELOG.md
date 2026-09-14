@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- Added `modernuo` containerized service for Ultima Online emulation with multi-stage Docker build, required runtime dependencies (`libdeflate0`, `libargon2-1`, `libicu-dev`, `tzdata`), health checks, and volume mounts.
+- Added `PORT_MODERNUO` host port mapping to [.env](.env) and [.env-template](.env-template).
+- Added `MODERNUO_SKILL_CAP` build argument and environment configuration to [.env](.env), [.env-template](.env-template), and [docker-compose.yaml](docker-compose.yaml) to automatically patch `PlayerMobile.cs` during image build.
+- Added `modernuo` service to [update.sh](update.sh).
+- Added `modernuo` entry to [README.md](README.md) services table.
+- Added `modernuo/uo-client/` and `modernuo/data/` to [.gitignore](.gitignore).
+
 ### Changed
 - Configured `seerr` with `user: "${PUID}:${PGID}"` and `crosswatch` with `APP_UID` and `APP_GID` in `docker-compose.yaml` to run containers with `1026:100` (`steve:users`) file ownership.
 
