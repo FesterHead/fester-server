@@ -15,19 +15,11 @@ function print_array_item() {
 function do_update() {
   cd ~/docker
 
-  if [[ "$1" == "modernuo" ]]; then
-    echo -e $TEXT_YELLOW
-    echo "-----------------------------------------------"
-    echo "Starting docker compose build for $1 ..."
-    echo -e $TEXT_RESET
-    docker compose build --pull $1
-  else
-    echo -e $TEXT_YELLOW
-    echo "-----------------------------------------------"
-    echo "Starting docker compose pull for $1 ..."
-    echo -e $TEXT_RESET
-    docker compose pull $1
-  fi
+  echo -e $TEXT_YELLOW
+  echo "-----------------------------------------------"
+  echo "Starting docker compose pull for $1 ..."
+  echo -e $TEXT_RESET
+  docker compose pull $1
 
   echo -e $TEXT_YELLOW
   echo "-----------------------------------------------"
@@ -46,7 +38,6 @@ services=("bazarr" \
           "emby" \
           "flaresolverr" \
           "homepage" \
-          "modernuo" \
           "prowlarr" \
           "radarr" \
           "rpdb-folders" \
