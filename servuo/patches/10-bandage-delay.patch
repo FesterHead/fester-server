@@ -1,0 +1,13 @@
+--- a/Scripts/Items/Resource/Bandage.cs
++++ b/Scripts/Items/Resource/Bandage.cs
+@@ -727,8 +727,8 @@ namespace Server.Items
+             {
+                 if (Core.AOS)
+                 {
+-                    seconds = Math.Min(8, Math.Ceiling(11.0 - dex / 20));
+-                    seconds = Math.Max(seconds, 4);
++                    seconds = Math.Min(8, Math.Ceiling(11.0 - dex / 10));
++                    seconds = Math.Max(seconds, 2);
+                 }
+                 else
+                 {

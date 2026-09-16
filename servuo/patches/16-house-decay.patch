@@ -1,0 +1,23 @@
+diff --git a/Scripts/Multis/BaseHouse.cs b/Scripts/Multis/BaseHouse.cs
+--- a/Scripts/Multis/BaseHouse.cs
++++ b/Scripts/Multis/BaseHouse.cs
+@@ -138,3 +138,5 @@ namespace Server.Multis
+             get
+             {
++                if (!Config.Get("Housing.DecayEnabled", false))
++                    return false;
+                 var decay = DecayType;
+diff --git a/Scripts/Multis/Boats/BaseBoat.cs b/Scripts/Multis/Boats/BaseBoat.cs
+--- a/Scripts/Multis/Boats/BaseBoat.cs
++++ b/Scripts/Multis/Boats/BaseBoat.cs
+@@ -321,3 +321,3 @@ namespace Server.Multis
+             m_DecayTime = DateTime.UtcNow + BoatDecayDelay;
+-            DoesDecay = true;
++            DoesDecay = Config.Get("Housing.DecayEnabled", false);
+             Facing = direction;
+@@ -2993,4 +2993,4 @@ namespace Server.Multis
+                 return true;
+ 
+-            if (DoesDecay && !IsMoving && DateTime.UtcNow >= m_DecayTime)
++            if (DoesDecay && Config.Get("Housing.DecayEnabled", false) && !IsMoving && DateTime.UtcNow >= m_DecayTime)
+             {

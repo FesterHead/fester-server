@@ -1,0 +1,13 @@
+diff --git a/Scripts/Misc/ServerList.cs b/Scripts/Misc/ServerList.cs
+index f9ee019..aad31a9 100644
+--- a/Scripts/Misc/ServerList.cs
++++ b/Scripts/Misc/ServerList.cs
+@@ -35,7 +35,7 @@ namespace Server.Misc
+ 
+                 var ipep = (IPEndPoint)s.LocalEndPoint;
+ 
+-                var address = ipep.Address;
++                var address = Address;
+                 var addressClient = ((IPEndPoint)s.RemoteEndPoint).Address;
+ 
+                 if (!IPAddress.IsLoopback(addressClient) && !IsPrivateNetwork(addressClient))

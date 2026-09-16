@@ -16,6 +16,10 @@ radarr/
 rating-poster-database/
 sabnzbd/
 seerr/
+servuo/Client/
+servuo/Logs/
+servuo/Saves/
+servuo/upstream/
 sonarr/
 swag/
 transmission-openvpn/

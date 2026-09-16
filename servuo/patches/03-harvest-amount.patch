@@ -1,0 +1,14 @@
+diff --git a/Scripts/Services/Harvest/HarvestSystem.cs b/Scripts/Services/Harvest/HarvestSystem.cs
+--- a/Scripts/Services/Harvest/HarvestSystem.cs
++++ b/Scripts/Services/Harvest/HarvestSystem.cs
+@@ -164,7 +164,9 @@ namespace Server.Engines.Harvest
+                     }
+                     else
+                     {
+-                        int amount = def.ConsumedPerHarvest;
++                        int minH = Config.Get("Harvest.MinYield", 3);
++                        int maxH = Config.Get("Harvest.MaxYield", 6);
++                        int amount = Utility.RandomMinMax(minH, maxH);
+                         int feluccaAmount = def.ConsumedPerFeluccaHarvest;
+ 
+                         if (item is BaseGranite)

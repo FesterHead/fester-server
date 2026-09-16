@@ -1,0 +1,12 @@
+diff --git a/Scripts/Services/Peerless/PeerlessKey.cs b/Scripts/Services/Peerless/PeerlessKey.cs
+--- a/Scripts/Services/Peerless/PeerlessKey.cs
++++ b/Scripts/Services/Peerless/PeerlessKey.cs
+@@ -28,7 +28,7 @@ namespace Server.Items
+ 
+             if (Lifespan > 0)
+             {
+-                m_Lifespan = Lifespan;
++                m_Lifespan = (int)(Lifespan * Math.Max(1.0, Config.Get("General.PeerlessKeyLifespanScale", 3.0)));
+                 StartTimer();
+             }
+         }

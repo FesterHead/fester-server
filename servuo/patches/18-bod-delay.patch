@@ -1,0 +1,12 @@
+diff --git a/Scripts/Services/BulkOrders/BulkOrderSystem.cs b/Scripts/Services/BulkOrders/BulkOrderSystem.cs
+--- a/Scripts/Services/BulkOrders/BulkOrderSystem.cs
++++ b/Scripts/Services/BulkOrders/BulkOrderSystem.cs
+@@ -29,7 +29,7 @@ namespace Server.Engines.BulkOrders
+     {
+         // Logic (EA says 3 cached): 2 cached, 1 in the pipe if the last bod > 6 hours = 3
+         public static readonly int MaxCachedDeeds = 2;
+-        public static readonly int Delay = 6;
++        public static int Delay => Config.Get("Vendors.BODDelayHours", 1);
+ 
+         public static bool NewSystemEnabled = Core.TOL;
+         public static BulkOrderSystem Instance { get; set; }
