@@ -1,4 +1,5 @@
 diff --git a/Scripts/Accounting/Account.cs b/Scripts/Accounting/Account.cs
+index a652fb1..1bb8b27 100644
 --- a/Scripts/Accounting/Account.cs
 +++ b/Scripts/Accounting/Account.cs
 @@ -20,7 +20,7 @@ namespace Server.Accounting
@@ -9,3 +10,4 @@ diff --git a/Scripts/Accounting/Account.cs b/Scripts/Accounting/Account.cs
 +		public static TimeSpan YoungDuration => TimeSpan.FromHours(Config.Get("Accounts.YoungPlayerDuration", Config.Get("Accounts.YoungDurationHours", 40.0)));
  		public static readonly TimeSpan InactiveDuration = TimeSpan.FromDays(180.0);
  		public static readonly TimeSpan EmptyInactiveDuration = TimeSpan.FromDays(30.0);
+ 
