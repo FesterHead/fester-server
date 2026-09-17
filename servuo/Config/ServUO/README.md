@@ -8,7 +8,7 @@ This directory (`servuo/Config/ServUO/`) contains the base ServUO platform confi
 
 | Configuration File | Scope | Key Customizations / Purpose |
 | :--- | :--- | :--- |
-| [`Accounts.cfg`](Accounts.cfg) | `Accounts` | Sets `AccountsPerIp=20` and disables `AutoCreateAccounts=False`. |
+| [`Accounts.cfg`](Accounts.cfg) | `Accounts` | Sets `AccountsPerIp=20`, disables `AutoCreateAccounts=False`, and configures `YoungPlayerDuration=80`. |
 | [`AutoRestart.cfg`](AutoRestart.cfg) | `AutoRestart` | Configures scheduled server restart frequency and hour. |
 | [`AutoSave.cfg`](AutoSave.cfg) | `AutoSave` | World save interval (15 minutes) and quiet save warnings. |
 | [`Champions.cfg`](Champions.cfg) | `Champions` | Duo-scaled kill counts (64/32/16/8 per tier) and 2 Power/Stat scrolls per boss kill. |

@@ -48,6 +48,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added [servuo/README.md](servuo/README.md) documenting container architecture, committed vs. uncommitted files, pinned commit rationale, volume mappings, client file installation from official UO classic client, custom client connection links (ClassicUO and TazUO), build and execution commands, private duo shard use case, custom QoL features, clean startup sequence, and reset procedures.
 - Added `servuo/patches/20-championspawns-data-path.patch` relocating stock `ChampionSpawns.xml` to `Data/` during image build and adding fallback logic in `ChampionSystem.LoadSpawns` to check `Config/` (for host overrides) before falling back to `Data/`, avoiding file duplication on the host.
 - Added `servuo/patches/20-championspawns-data-path.patch` entry to [servuo/patches/README.md](servuo/patches/README.md) patch inventory table.
+- Added `servuo/patches/21-young-player-duration.patch` parameterizing Young player status duration via `servuo/Config/ServUO/Accounts.cfg` (`YoungPlayerDuration=80`, doubling default 40 hours to 80 hours).
+- Added `servuo/patches/21-young-player-duration.patch` entry to [servuo/patches/README.md](servuo/patches/README.md) patch inventory table.
 
 ### Changed
 - Configured `seerr` with `user: "${PUID}:${PGID}"` and `crosswatch` with `APP_UID` and `APP_GID` in `docker-compose.yaml` to run containers with standard host file ownership.

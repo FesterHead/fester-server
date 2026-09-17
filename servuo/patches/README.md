@@ -63,6 +63,7 @@ A helper script is provided in `servuo/manage-patches.sh` to maintain and test p
 | [`18-bod-delay.patch`](18-bod-delay.patch) | `Scripts/Services/BulkOrders/BulkOrderSystem.cs` | Crafting / Bulk Orders | Parameterizes Bulk Order Deed refresh delay via `servuo/Config/ServUO/Vendors.cfg` (`BODDelayHours=1`, lowering retail 6-hour delay to 1 hour). |
 | [`19-peerless-key-lifespan.patch`](19-peerless-key-lifespan.patch) | `Scripts/Services/Peerless/PeerlessKey.cs` | Dungeons / Bosses | Scales Peerless and dungeon boss key lifespans by multiplier in `servuo/Config/ServUO/General.cfg` (`PeerlessKeyLifespanScale=3.0`). |
 | [`20-championspawns-data-path.patch`](20-championspawns-data-path.patch) | `Config/ChampionSpawns.xml`<br>`Scripts/Services/ChampionSystem/ChampionSystem.cs` | Spawns / Champions | Relocates upstream `ChampionSpawns.xml` to `Data/` during image build and updates `ChampionSystem.LoadSpawns` to check `Config/` (for custom overrides) with fallback to `Data/`, eliminating the need to duplicate the stock XML file on the host. |
+| [`21-young-player-duration.patch`](21-young-player-duration.patch) | `Scripts/Accounting/Account.cs` | Account & Player Progression | Parameterizes Young player status duration via `servuo/Config/ServUO/Accounts.cfg` (`YoungPlayerDuration=80`, doubling default 40 hours to 80 hours). |
 
 ---
 
