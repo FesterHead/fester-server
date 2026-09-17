@@ -2,6 +2,7 @@
 .github
 Client/
 Saves/
+Saves.backup*/
 Logs/
 upstream/
 bin/

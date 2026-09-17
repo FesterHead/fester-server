@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.3.0] - 2026-09-16
 
 ### Added
+- Added `servuo/Saves.backup*/` pattern to [.gitignore](.gitignore) and [servuo/.dockerignore](servuo/.dockerignore) to ignore timestamped save backup directories.
 - Added `servuo` containerized service for Ultima Online emulation targeting `pub57` with .NET 10 and Mono multi-stage build, health checks, interactive admin console (`stdin_open`, `tty`), and persistent volume mounts.
 - Added `PORT_SERVUO` host port mapping to [.env](.env) and [.env-template](.env-template).
 - Added `servuo` service to [update.sh](update.sh).
