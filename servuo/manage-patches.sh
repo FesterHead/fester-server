@@ -134,7 +134,7 @@ cmd_apply() {
 cmd_reset() {
     ensure_upstream
     echo -e "${YELLOW}Discarding all local modifications in upstream directory...${NC}"
-    git -C "${UPSTREAM_DIR}" checkout .
+    git -C "${UPSTREAM_DIR}" reset --hard HEAD
     git -C "${UPSTREAM_DIR}" clean -fd
     echo -e "${GREEN}Upstream directory restored to clean stock state.${NC}"
 }

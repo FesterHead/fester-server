@@ -1,0 +1,36 @@
+diff --git a/Config/ChampionSpawns.xml b/Data/ChampionSpawns.xml
+similarity index 100%
+rename from Config/ChampionSpawns.xml
+rename to Data/ChampionSpawns.xml
+diff --git a/Scripts/Services/ChampionSystem/ChampionSystem.cs b/Scripts/Services/ChampionSystem/ChampionSystem.cs
+index 29e52d5..0fbac0f 100644
+--- a/Scripts/Services/ChampionSystem/ChampionSystem.cs
++++ b/Scripts/Services/ChampionSystem/ChampionSystem.cs
+@@ -15,6 +15,7 @@ namespace Server.Engines.CannedEvil
+ 		private static bool m_Initialized = false;
+ 		private static readonly string m_Path = Path.Combine("Saves", "Champions", "ChampionSystem.bin");
+ 		private static readonly string m_ConfigPath = Path.Combine("Config", "ChampionSpawns.xml");
++		private static readonly string m_DataPath = Path.Combine("Data", "ChampionSpawns.xml");
+ 		private static DateTime m_LastRotate;
+ 		private static TimeSpan m_RotateDelay;
+ 		private static List<ChampionSpawn> m_AllSpawns = new List<ChampionSpawn>();
+@@ -188,8 +189,18 @@ namespace Server.Engines.CannedEvil
+ 
+             ChampionSpawn spawn;
+ 
++            string path = File.Exists(m_ConfigPath) ? m_ConfigPath : m_DataPath;
++
++            if (!File.Exists(path))
++            {
++                Utility.PushColor(ConsoleColor.Red);
++                Console.WriteLine($"Error: Champion spawn configuration file not found at '{m_ConfigPath}' or '{m_DataPath}'.");
++                Utility.PopColor();
++                return;
++            }
++
+             XmlDocument doc = new XmlDocument();
+-            doc.Load(m_ConfigPath);
++            doc.Load(path);
+             foreach (XmlNode node in doc.GetElementsByTagName("championSystem")[0].ChildNodes)
+             {
+                 if (node.Name.Equals("spawn"))
