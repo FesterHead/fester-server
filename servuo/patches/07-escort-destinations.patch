@@ -1,7 +1,7 @@
 diff --git a/Scripts/Mobiles/NPCs/BaseEscortable.cs b/Scripts/Mobiles/NPCs/BaseEscortable.cs
 --- a/Scripts/Mobiles/NPCs/BaseEscortable.cs
 +++ b/Scripts/Mobiles/NPCs/BaseEscortable.cs
-@@ -14,15 +14,12 @@ namespace Server.Mobiles
+@@ -14,15 +14,11 @@ namespace Server.Mobiles
          private static readonly string[] m_TownNames = new string[]
          {
 -            "Cove", "Britain", "Jhelom",
@@ -10,7 +10,6 @@ diff --git a/Scripts/Mobiles/NPCs/BaseEscortable.cs b/Scripts/Mobiles/NPCs/BaseE
 -            "Nujel'm", "Moonglow", "Magincia"
 +            "Britain",
 +            "Minoc",
-+            "Trinsic",
 +            "Vesper",
 +            "Skara Brae" // Accessible via the Skara Brae mainland-to-island rope ferry
          };
@@ -20,10 +19,10 @@ diff --git a/Scripts/Mobiles/NPCs/BaseEscortable.cs b/Scripts/Mobiles/NPCs/BaseE
 -            "Nujel'm"
 -        };
 +        private static readonly string[] m_MLTownNames = m_TownNames;
- 
+
          private static readonly Hashtable m_EscortTable = new Hashtable();
          private static readonly TimeSpan m_EscortDelay = TimeSpan.FromMinutes(5.0);
-@@ -446,10 +443,7 @@ namespace Server.Mobiles
+@@ -446,10 +442,7 @@ namespace Server.Mobiles
  
          public virtual string[] GetPossibleDestinations()
          {
