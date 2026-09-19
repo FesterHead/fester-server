@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- Added [23-vendor-reagent-stock.patch](servuo/patches/23-vendor-reagent-stock.patch) and `ReagentStockAmount=1000` to [Vendors.cfg](servuo/Config/ServUO/Vendors.cfg) to ensure all NPC reagent vendors stock 1,000 of every reagent (Magery, Necromancy, and Mysticism) with full runtime configuration.
+
 ### Fixed
 - Fixed tithing gold detection, client input desyncs, and deduction failures in [22-tithing-mechanics.patch](servuo/patches/22-tithing-mechanics.patch) by unifying gold calculations across bank account ledgers and recursive backpack containers, establishing a fallback offer for empty/missing text-entry relays from modern clients (ClassicUO/TazUO), and implementing orderly deduction from bank followed by backpack with rollback safety.
 

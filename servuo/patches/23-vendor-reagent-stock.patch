@@ -1,0 +1,74 @@
+diff --git a/Scripts/Mobiles/NPCs/BaseVendor.cs b/Scripts/Mobiles/NPCs/BaseVendor.cs
+index 742855d..a118c1e 100644
+--- a/Scripts/Mobiles/NPCs/BaseVendor.cs
++++ b/Scripts/Mobiles/NPCs/BaseVendor.cs
+@@ -34,6 +34,7 @@ namespace Server.Mobiles
+         public static int BuyItemChange = Config.Get("Vendors.BuyItemChange", 1000);
+         public static int SellItemChange = Config.Get("Vendors.SellItemChange", 1000);
+         public static int EconomyStockAmount = Config.Get("Vendors.EconomyStockAmount", 500);
++        public static int ReagentStockAmount = Config.Get("Vendors.ReagentStockAmount", Config.Get("Vendors.EconomyStockAmount", 1000));
+         public static TimeSpan DelayRestock = TimeSpan.FromMinutes(Config.Get("Vendors.RestockDelay", 60));
+         public static int MaxSell = Config.Get("Vendors.MaxSell", 500);
+ 
+diff --git a/Scripts/VendorInfo/GenericBuy.cs b/Scripts/VendorInfo/GenericBuy.cs
+index d8548f8..ba0066e 100644
+--- a/Scripts/VendorInfo/GenericBuy.cs
++++ b/Scripts/VendorInfo/GenericBuy.cs
+@@ -46,9 +46,13 @@ namespace Server.Mobiles
+             m_ItemID = itemID;
+             m_Hue = hue;
+             m_Args = args;
+-            m_Stackable = stacks;
++            m_Stackable = stacks || (type != null && IsReagent(type));
+ 
+-            if (type != null && EconomyItem)
++            if (type != null && IsReagent(type))
++            {
++                m_MaxAmount = m_Amount = BaseVendor.ReagentStockAmount;
++            }
++            else if (type != null && EconomyItem)
+             {
+                 m_MaxAmount = m_Amount = BaseVendor.EconomyStockAmount;
+             }
+@@ -225,6 +229,14 @@ namespace Server.Mobiles
+                 m_Hue = value;
+             }
+         }
++        public static bool IsReagent(Type type)
++        {
++            if (type == null)
++                return false;
++
++            return typeof(BaseReagent).IsAssignableFrom(type) || type == typeof(Bone) || type == typeof(FertileDirt);
++        }
++
+         public int Amount
+         {
+             get
+@@ -233,8 +245,11 @@ namespace Server.Mobiles
+             }
+             set
+             {
+-                // Amount is ALWAYS 500
+-                if (EconomyItem)
++                if (IsReagent(m_Type))
++                {
++                    m_Amount = BaseVendor.ReagentStockAmount;
++                }
++                else if (EconomyItem)
+                 {
+                     m_Amount = BaseVendor.EconomyStockAmount;
+                 }
+@@ -251,7 +266,11 @@ namespace Server.Mobiles
+         {
+             get
+             {
+-                // Amount is ALWAYS 500
++                if (IsReagent(m_Type))
++                {
++                    return BaseVendor.ReagentStockAmount;
++                }
++
+                 if (EconomyItem)
+                 {
+                     return BaseVendor.EconomyStockAmount;
