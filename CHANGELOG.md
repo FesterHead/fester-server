@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+- Fixed tithing gold detection, client input desyncs, and deduction failures in [22-tithing-mechanics.patch](servuo/patches/22-tithing-mechanics.patch) by unifying gold calculations across bank account ledgers and recursive backpack containers, establishing a fallback offer for empty/missing text-entry relays from modern clients (ClassicUO/TazUO), and implementing orderly deduction from bank followed by backpack with rollback safety.
+
 ### Changed
 - Removed Trinsic from NPC escort quest destinations in [07-escort-destinations.patch](servuo/patches/07-escort-destinations.patch).
 
