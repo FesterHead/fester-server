@@ -221,7 +221,8 @@ namespace Server.Custom
             List<Item> fishList = new List<Item>();
             foreach (Item item in from.Backpack.Items)
             {
-                if (item is Fish || item is BaseFish || item is BigFish)
+                if (item is Fish || item is BaseFish || item is BigFish ||
+                    (item is BaseHighseasFish && !(item is RareFish) && !(item is BaseCrabAndLobster)))
                 {
                     fishList.Add(item);
                 }
