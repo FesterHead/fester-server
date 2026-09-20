@@ -152,10 +152,16 @@ namespace Server.Custom
             new BookPageInfo(
                 "PLAYER COMMANDS",
                 "-------------------",
+                "[rbank",
+                "  Opens your bank box",
+                "  remotely anytime.",
+                "",
                 "[c <message>",
                 "  Global chat broadcast",
-                "  to all online players.",
-                "",
+                "  to all online players."),
+            new BookPageInfo(
+                "PLAYER COMMANDS 2",
+                "-------------------",
                 "[Stats",
                 "  View full combat,",
                 "  magic, and ratings.",

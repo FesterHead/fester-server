@@ -1,0 +1,23 @@
+diff --git a/Scripts/VendorInfo/SBFisherman.cs b/Scripts/VendorInfo/SBFisherman.cs
+--- a/Scripts/VendorInfo/SBFisherman.cs
++++ b/Scripts/VendorInfo/SBFisherman.cs
+@@ -1,5 +1,6 @@
+ using System; 
+ using System.Collections.Generic; 
++using Server;
+ using Server.Items; 
+ 
+ namespace Server.Mobiles 
+@@ -41,6 +42,12 @@ namespace Server.Mobiles
+                 Add(new GenericBuyInfo(typeof(Fish), 6, 80, 0x9CE, 0, true));
+                 Add(new GenericBuyInfo(typeof(Fish), 6, 80, 0x9CF, 0, true));
+                 Add(new GenericBuyInfo(typeof(FishingPole), 15, 20, 0xDC0, 0));
++
++                Type tDecoder = ScriptCompiler.FindTypeByName("SOSDecoder");
++                if (tDecoder != null)
++                {
++                    Add(new GenericBuyInfo("an SOS instant transporter", tDecoder, Config.Get("Vendors.SOSDecoderCost", 10000), 20, 0x577E, 1366));
++                }
+ 
+                 #region Mondain's Legacy
+                 Add(new GenericBuyInfo(typeof(AquariumFishNet), 250, 20, 0xDC8, 0x240));

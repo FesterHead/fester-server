@@ -1,0 +1,29 @@
+diff --git a/Scripts/VendorInfo/SBMapmaker.cs b/Scripts/VendorInfo/SBMapmaker.cs
+--- a/Scripts/VendorInfo/SBMapmaker.cs
++++ b/Scripts/VendorInfo/SBMapmaker.cs
+@@ -1,5 +1,6 @@
+ using System;
+ using System.Collections.Generic;
++using Server;
+ using Server.Items;
+ 
+ namespace Server.Mobiles
+@@ -34,6 +35,18 @@ namespace Server.Mobiles
+                 Add(new GenericBuyInfo(typeof(BlankMap), 5, 40, 0x14EC, 0));
+                 Add(new GenericBuyInfo(typeof(MapmakersPen), 8, 20, 0x0FBF, 0));
+                 Add(new GenericBuyInfo(typeof(BlankScroll), 12, 40, 0xEF3, 0));
++
++                Type tMapBook = ScriptCompiler.FindTypeByName("TMapBook");
++                if (tMapBook != null)
++                {
++                    Add(new GenericBuyInfo("a treasure map and sos book", tMapBook, Config.Get("Vendors.TMapBookCost", 1000), 20, 0x2259, 45));
++                }
++
++                Type tDecoder = ScriptCompiler.FindTypeByName("TreasureMapDecoder");
++                if (tDecoder != null)
++                {
++                    Add(new GenericBuyInfo("a treasure map instant transporter", tDecoder, Config.Get("Vendors.TreasureMapDecoderCost", 10000), 20, 0x577E, 1266));
++                }
+ 				
+                 for (int i = 0; i < PresetMapEntry.Table.Length; ++i)
+                     Add(new PresetMapBuyInfo(PresetMapEntry.Table[i], Utility.RandomMinMax(7, 10), 20));

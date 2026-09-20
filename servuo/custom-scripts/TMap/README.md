@@ -20,6 +20,7 @@ This directory (`servuo/custom-scripts/TMap/`) contains the Treasure Map and SOS
 - **Filtering & Search**: Filter entries by type (Treasure Map vs. SOS), facet, decoding status, and difficulty level.
 - **Modern ServUO Loot Support**: Seamlessly extracts modern treasure maps while retaining package type and treasure level information.
 - **Player Vendor Compatible**: Supports setting prices per map and selling directly from player vendor backpacks.
+- **Mapmaker Vendor Available**: Sold by NPC Mapmakers across Britannia for 1,000 gold (configured via `servuo/Config/ServUO/Vendors.cfg`).
 
 ---
 

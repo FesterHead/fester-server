@@ -24,10 +24,36 @@ namespace Server.Custom
         // Satchel itself has 0 stone weight
         public override double DefaultWeight => 0.0;
 
-        // Contents inside satchel contribute 0 total weight
+        // Recursive count of items contained inside the satchel
+        public int ContainedItemsCount
+        {
+            get
+            {
+                int count = 0;
+                var items = Items;
+                if (items != null)
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        Item item = items[i];
+                        if (item != null && !item.IsVirtualItem)
+                        {
+                            count += item.TotalItems + 1;
+                        }
+                    }
+                }
+                return count;
+            }
+        }
+
+        // Contents inside satchel contribute 0 total weight and 0 items to parent containers
+        // The parent backpack will only count 1 item (the satchel itself: item.TotalItems + 1 = 0 + 1 = 1)
         public override int GetTotal(TotalType type)
         {
             if (type == TotalType.Weight && WeightReduction >= 100)
+                return 0;
+
+            if (type == TotalType.Items)
                 return 0;
 
             int total = base.GetTotal(type);
@@ -38,7 +64,7 @@ namespace Server.Custom
             return total;
         }
 
-        // Prevent weight changes from propagating upward to parent backpack or player
+        // Prevent weight and item count changes from propagating upward to parent backpack or player
         public override void UpdateTotal(Item sender, TotalType type, int delta)
         {
             if (type == TotalType.Weight && WeightReduction >= 100)
@@ -49,6 +75,12 @@ namespace Server.Custom
 
             if (type == TotalType.Weight && WeightReduction > 0)
                 delta -= delta * WeightReduction / 100;
+
+            if (type == TotalType.Items)
+            {
+                InvalidateProperties();
+                return;
+            }
 
             base.UpdateTotal(sender, type, delta);
         }
@@ -81,13 +113,22 @@ namespace Server.Custom
             }
         }
 
+        public override bool DisplaysContent => false;
+
         public override void GetProperties(ObjectPropertyList list)
         {
             base.GetProperties(list);
+            list.Add(1073841, "{0}\t{1}\t{2}", ContainedItemsCount, MaxItems, 0); // Contents: ~1_COUNT~/~2_MAXCOUNT~ items, ~3_WEIGHT~ stones
             list.Add(1072210, "100"); // Weight reduction: ~1_PERCENTAGE~%
         }
 
-        // Validate items placed into the satchel and parent item count limits
+        public override void OnSingleClick(Mobile from)
+        {
+            base.OnSingleClick(from);
+            LabelTo(from, "({0} items, 0 stones)", ContainedItemsCount);
+        }
+
+        // Validate items placed into the satchel and satchel capacity without counting against parent backpack
         public override bool CheckHold(Mobile from, Item item, bool message, bool checkItems, int plusItems, int plusWeight)
         {
             if (item == null)
@@ -102,38 +143,12 @@ namespace Server.Custom
             }
 
             int maxItems = MaxItems;
-            if (checkItems && maxItems != 0 && (TotalItems + plusItems + item.TotalItems + (item.IsVirtualItem ? 0 : 1)) > maxItems)
+            if (checkItems && maxItems != 0 && (ContainedItemsCount + plusItems + item.TotalItems + (item.IsVirtualItem ? 0 : 1)) > maxItems)
             {
                 if (message)
                     SendFullItemsMessage(from, item);
 
                 return false;
-            }
-
-            // Verify parent container item count capacity (skipping weight checks because satchel contents weigh 0)
-            var parent = Parent;
-            while (parent != null)
-            {
-                if (parent is Container c)
-                {
-                    if (checkItems && c.MaxItems != 0 && (c.TotalItems + plusItems + item.TotalItems + (item.IsVirtualItem ? 0 : 1)) > c.MaxItems)
-                    {
-                        if (message)
-                            c.SendFullItemsMessage(from, item);
-
-                        return false;
-                    }
-
-                    parent = c.Parent;
-                }
-                else if (parent is Item parentItem)
-                {
-                    parent = parentItem.Parent;
-                }
-                else
-                {
-                    break;
-                }
             }
 
             return true;

@@ -27,6 +27,7 @@ Each subdirectory contains its own dedicated `README.md` detailing full feature 
 | **[`MyStats/`](MyStats/README.md)** | Feng | Player Dashboard | • Comprehensive combat, magic, defense, and skill profile dashboard (`[Stats`)<br>• Staff server diagnostic metrics fallback (`[Stats server`)<br>• Paired with patch `10-bandage-delay.patch` |
 | **[`PetExchange/`](PetExchange/README.md)** | 4737Carlin | Housing & Stables | • Player house hitching post addon deed (`[add PetExchangeAddonDeed`)<br>• Private cross-character and cross-account pet stabling<br>• Per-pet access level permissions (Owner, Co-Owner, Friend)<br>• Live bonding timer countdowns on item tooltips<br>• Capacity parameterized via `servuo/Config/PetExchange/PetExchange.cfg` |
 | **[`TMap/`](TMap/README.md)** | 4737Carlin | Treasure Hunting | • High-capacity (500-slot) blessed storage tome for Treasure Maps and SOS messages<br>• Multi-page filtering, map withdrawal, and price setting<br>• Player vendor backpack selling support |
+| **[`zerodowned/`](zerodowned/README.md)** | zerodowned | Seafaring & Exploration | • SOS Instant Transporter (`[add SOSDecoder`): teleports player vessel directly to targeted SOS coordinates<br>• Treasure Map Instant Transporter (`[add TreasureMapDecoder`): opens timed moongate directly to map chest coordinates<br>• Unlimited uses without charges |
 
 ---
 

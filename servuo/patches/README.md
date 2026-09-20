@@ -66,6 +66,9 @@ A helper script is provided in `servuo/manage-patches.sh` to maintain and test p
 | [`21-young-player-duration.patch`](21-young-player-duration.patch) | `Scripts/Accounting/Account.cs` | Account & Player Progression | Parameterizes Young player status duration via `servuo/Config/ServUO/Accounts.cfg` (`YoungPlayerDuration=80`, doubling default 40 hours to 80 hours). |
 | [`22-tithing-mechanics.patch`](22-tithing-mechanics.patch) | `Scripts/Gumps/TithingGump.cs`<br>`Scripts/Items/Functional/Ankhs.cs`<br>`Scripts/Mobiles/NPCs/ShrineHealer.cs` | Shrines & Tithing | Unifies titheable gold detection across bank ledger and player backpack/subcontainers, fixes client text desync/zero submissions for ClassicUO/TazUO, and implements safe multi-source gold deduction. |
 | [`23-vendor-reagent-stock.patch`](23-vendor-reagent-stock.patch) | `Scripts/Mobiles/NPCs/BaseVendor.cs`<br>`Scripts/VendorInfo/GenericBuy.cs` | Economy & Vendors | Classifies all reagent types (`BaseReagent`, `Bone`, `FertileDirt`) as stackable trade commodities and parameterizes vendor reagent inventory stock via `servuo/Config/ServUO/Vendors.cfg` (`ReagentStockAmount=1000`). |
+| [`24-tmap-book-vendor.patch`](24-tmap-book-vendor.patch) | `Scripts/VendorInfo/SBMapmaker.cs` | Economy & Exploration | Adds Treasure Map and SOS books (`TMapBook`, 1,000 gp via `TMapBookCost`) and Treasure Map Instant Transporters (`TreasureMapDecoder`, 10,000 gp via `TreasureMapDecoderCost`) to NPC Mapmaker inventories parameterized via `servuo/Config/ServUO/Vendors.cfg`. |
+| [`25-sos-decoder-vendor.patch`](25-sos-decoder-vendor.patch) | `Scripts/VendorInfo/SBFisherman.cs` | Economy & Seafaring | Adds SOS Instant Transporters (`SOSDecoder`) to NPC Fisherman inventories parameterized via `servuo/Config/ServUO/Vendors.cfg` (`SOSDecoderCost=10000`). |
+
 
 ---
 
