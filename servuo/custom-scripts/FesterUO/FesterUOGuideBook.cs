@@ -162,6 +162,10 @@ namespace Server.Custom
             new BookPageInfo(
                 "PLAYER COMMANDS 2",
                 "-------------------",
+                "[tillerman",
+                "  Ship navigation gump",
+                "  for helm controls.",
+                "",
                 "[Stats",
                 "  View full combat,",
                 "  magic, and ratings.",
