@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-09-21
+
 ### Added
 - Added [TillermanGump.cs](servuo/custom-scripts/FesterUO/TillermanGump.cs) providing player command `[tillerman` to open a compact, intelligently organized boat navigation control gump featuring continuous sail (Forward, Back, Left, Right), single-tile nudges (Forward One, Back One, Left One, Right One), maneuvers (Turn Left, Turn Right, Turn Around), and an emergency halt (Stop) with automatic gump re-display.
 - Added custom script in `servuo/custom-scripts/zerodowned/` ([`TreasureMapDecoder.cs`](servuo/custom-scripts/zerodowned/TreasureMapDecoder.cs), authored by zerodowned, https://github.com/zerodowned/Custom-Scripts-for-ServUO/tree/master/Treasure%20Map%20Decoder) providing a Treasure Map Instant Transporter item (`[add TreasureMapDecoder`) that creates a 30-second timed moongate directly to the chest coordinates of a targeted Treasure Map with auto-decoding and unlimited uses (no charges required).
