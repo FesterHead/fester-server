@@ -14,7 +14,7 @@ services:
       - "${SERVICE_DIR}/diun:/data"
       - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
-      test: ["CMD", "sh", "-c", "pidof diun || exit 1"]
+      test: [ "CMD", "sh", "-c", "pidof diun || exit 1" ]
       interval: 60s
       retries: 5
       start_period: 60s
@@ -47,7 +47,7 @@ services:
     volumes:
       - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
-      test: ["CMD", "sh", "-c", "pidof container-mon || exit 1"]
+      test: [ "CMD", "sh", "-c", "pidof container-mon || exit 1" ]
       interval: 60s
       retries: 5
       start_period: 60s
@@ -361,6 +361,7 @@ services:
   seerr:
     container_name: seerr
     image: ghcr.io/seerr-team/seerr:latest
+    user: "${PUID}:${PGID}"
     init: true
     restart: unless-stopped
     depends_on:
@@ -409,6 +410,8 @@ services:
       start_period: 60s
       timeout: 10s
     environment:
+      - "APP_GID=${PGID}"
+      - "APP_UID=${PUID}"
       - "PGID=${PGID}"
       - "PUID=${PUID}"
       - "TZ=${TZ}"
@@ -434,7 +437,7 @@ services:
       - "${SERVICE_DIR}/homepage/icons:/app/public/icons"
       - "${DOCKER_SOCK}:/var/run/docker.sock"
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
+      test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/" ]
       interval: 60s
       retries: 5
       start_period: 60s
@@ -465,15 +468,7 @@ services:
       - "${DNS_PRIMARY}"
       - "${DNS_SECONDARY}"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://127.0.0.1:2375/version",
-        ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:2375/version" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -567,7 +562,7 @@ services:
       - "${DATA_DIR}/movies:/rpdb/mounts/movies"
       - "${DATA_DIR}/tv-shows:/rpdb/mounts/tv-shows"
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8750/"]
+      test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8750/" ]
       interval: 60s
       retries: 5
       start_period: 60s
@@ -597,3 +592,45 @@ services:
       retries: 5
       start_period: 60s
       timeout: 10s
+  servuo:
+    container_name: servuo
+    build:
+      context: ./servuo
+      dockerfile: Dockerfile
+    image: servuo:latest
+    user: "${PUID}:${PGID}"
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    depends_on:
+      - "diun"
+      - "container-mon"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=false"
+    ports:
+      - "${PORT_SERVUO}:2593"
+      - "${PORT_SERVUO}:2593/udp"
+    dns:
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
+    volumes:
+      - "${SERVICE_DIR}/servuo/Client:/server/Client:ro"
+      - "${SERVICE_DIR}/servuo/Saves:/server/Saves"
+      - "${SERVICE_DIR}/servuo/Logs:/server/Logs"
+      - "${SERVICE_DIR}/servuo/custom-scripts:/server/Scripts/Custom"
+      - "${SERVICE_DIR}/servuo/Config:/server/Config"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "pidof mono || pidof dotnet || exit 1" ]
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "PGID=${PGID}"
+      - "PUID=${PUID}"
+      - "TZ=${TZ}"
+      - "UMASK=${UMASK}"
+      - "DOTNET_CLI_HOME=/server/.dotnet"
+      - "HOME=/server"
+

@@ -16,6 +16,12 @@ radarr/
 rating-poster-database/
 sabnzbd/
 seerr/
+servuo/Client/
+servuo/Logs/
+servuo/Saves/
+servuo/Saves.backup*/
+servuo/upstream/
+servuo/ServUO-pub57.zip
 sonarr/
 swag/
 transmission-openvpn/

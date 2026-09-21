@@ -1,0 +1,184 @@
+diff --git a/Scripts/Services/Pet Training/Gumps.cs b/Scripts/Services/Pet Training/Gumps.cs
+index c8030b1..cb76a22 100644
+--- a/Scripts/Services/Pet Training/Gumps.cs	
++++ b/Scripts/Services/Pet Training/Gumps.cs	
+@@ -1149,7 +1149,7 @@ namespace Server.Mobiles
+             {
+                 Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                     {
+-                        if (User.HasGump(typeof(NewAnimalLoreGump)))
++                        if (PetTrainingHelper.HasLoreGump(User))
+                         {
+                             Refresh();
+                             User.CloseGump(typeof(PetTrainingPlanningGump));
+@@ -1163,7 +1163,7 @@ namespace Server.Mobiles
+             {
+                 Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                     {
+-                        if (User.HasGump(typeof(NewAnimalLoreGump)))
++                        if (PetTrainingHelper.HasLoreGump(User))
+                         {
+                             Refresh();
+                             User.CloseGump(typeof(PetTrainingInfoGump));
+@@ -1177,7 +1177,7 @@ namespace Server.Mobiles
+             {
+                 Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                     {
+-                        if (User.HasGump(typeof(NewAnimalLoreGump)))
++                        if (PetTrainingHelper.HasLoreGump(User))
+                         {
+                             Category = id - 3;
+                             Refresh();
+@@ -1226,7 +1226,7 @@ namespace Server.Mobiles
+             {
+                 Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                     {
+-                        if (User.HasGump(typeof(NewAnimalLoreGump)))
++                        if (PetTrainingHelper.HasLoreGump(User))
+                         {
+                             User.CloseGump(typeof(PetTrainingConfirmationGump));
+                             BaseGump.SendGump(new PetTrainingConfirmationGump(User, Creature, tp));
+@@ -1515,7 +1515,7 @@ namespace Server.Mobiles
+                 case 1:
+                     Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                         {
+-                            if (User.HasGump(typeof(NewAnimalLoreGump)))
++                            if (PetTrainingHelper.HasLoreGump(User))
+                             {
+                                 BaseGump.SendGump(new PetTrainingOptionsGump(User, Creature));
+                             }
+@@ -1697,7 +1697,7 @@ namespace Server.Mobiles
+ 
+                     Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+                     {
+-                        if (User.HasGump(typeof(NewAnimalLoreGump)))
++                        if (PetTrainingHelper.HasLoreGump(User))
+                         {
+                             Refresh();
+ 
+@@ -1721,7 +1721,7 @@ namespace Server.Mobiles
+         {
+             Timer.DelayCall(TimeSpan.FromSeconds(.5), () =>
+             {
+-                BaseGump gump = User.FindGump<NewAnimalLoreGump>();
++                BaseGump gump = PetTrainingHelper.FindLoreGump(User);
+ 
+                 if (gump != null)
+                 {
+@@ -1729,7 +1729,7 @@ namespace Server.Mobiles
+                 }
+                 else
+                 {
+-                    BaseGump.SendGump(new NewAnimalLoreGump(User, Creature));
++                    PetTrainingHelper.SendLoreGump(User, Creature);
+                 }
+ 
+                 if (sendOptions)
+diff --git a/Scripts/Services/Pet Training/PetTrainingGate.cs b/Scripts/Services/Pet Training/PetTrainingGate.cs
+index 3beb4d3..de64d15 100644
+--- a/Scripts/Services/Pet Training/PetTrainingGate.cs	
++++ b/Scripts/Services/Pet Training/PetTrainingGate.cs	
+@@ -40,12 +40,12 @@ namespace Server.Items
+ 
+                     if (bc.ControlMaster is PlayerMobile)
+                     {
+-                        var gump = bc.ControlMaster.FindGump<NewAnimalLoreGump>();
++                        var gump = PetTrainingHelper.FindLoreGump(bc.ControlMaster);
+ 
+                         if (gump != null)
+                             gump.Refresh();
+                         else
+-                            BaseGump.SendGump(new NewAnimalLoreGump((PlayerMobile)bc.ControlMaster, bc));
++                            PetTrainingHelper.SendLoreGump((PlayerMobile)bc.ControlMaster, bc);
+                     }
+                 }
+             }
+diff --git a/Scripts/Services/Pet Training/PetTrainingHelper.cs b/Scripts/Services/Pet Training/PetTrainingHelper.cs
+index 6a01d94..ae0ab37 100644
+--- a/Scripts/Services/Pet Training/PetTrainingHelper.cs	
++++ b/Scripts/Services/Pet Training/PetTrainingHelper.cs	
+@@ -1,5 +1,6 @@
+ using System;
+ using Server;
++using Server.Gumps;
+ using System.Collections.Generic;
+ using System.Linq;
+ using Server.Items;
+@@ -118,6 +119,55 @@ namespace Server.Mobiles
+     {
+         public static bool Enabled { get { return Core.TOL; } }
+ 
++        public static bool HasLoreGump(Mobile m)
++        {
++            if (m == null)
++            {
++                return false;
++            }
++
++            Type t = ScriptCompiler.FindTypeByName("DashboardAnimalLoreGump");
++            return (t != null && m.HasGump(t)) || m.HasGump(typeof(NewAnimalLoreGump));
++        }
++
++        public static BaseGump FindLoreGump(Mobile m)
++        {
++            if (m == null)
++            {
++                return null;
++            }
++
++            Type t = ScriptCompiler.FindTypeByName("DashboardAnimalLoreGump");
++            if (t != null)
++            {
++                BaseGump g = m.FindGump(t) as BaseGump;
++                if (g != null)
++                {
++                    return g;
++                }
++            }
++
++            return m.FindGump<NewAnimalLoreGump>();
++        }
++
++        public static void SendLoreGump(Mobile from, BaseCreature bc)
++        {
++            if (from == null || bc == null)
++            {
++                return;
++            }
++
++            Type t = ScriptCompiler.FindTypeByName("DashboardAnimalLoreGump");
++            if (t != null)
++            {
++                BaseGump.SendGump((BaseGump)Activator.CreateInstance(t, (PlayerMobile)from, bc));
++            }
++            else
++            {
++                BaseGump.SendGump(new NewAnimalLoreGump((PlayerMobile)from, bc));
++            }
++        }
++
+         public static List<TrainingPoint> TrainingPoints { get { return _TrainingPoints; } }
+         public static List<TrainingPoint> _TrainingPoints;
+ 
+diff --git a/Scripts/Skills/AnimalLore.cs b/Scripts/Skills/AnimalLore.cs
+index 3593606..184bdae 100644
+--- a/Scripts/Skills/AnimalLore.cs
++++ b/Scripts/Skills/AnimalLore.cs
+@@ -14,7 +14,7 @@ namespace Server.SkillHandlers
+ 
+         public static TimeSpan OnUse(Mobile m)
+         {
+-            if (PetTrainingHelper.Enabled && m.HasGump(typeof(NewAnimalLoreGump)))
++            if (PetTrainingHelper.Enabled && PetTrainingHelper.HasLoreGump(m))
+             {
+                 m.SendLocalizedMessage(500118); // You must wait a few moments to use another skill.
+             }
+@@ -37,7 +37,7 @@ namespace Server.SkillHandlers
+                 {
+                     Timer.DelayCall(TimeSpan.FromSeconds(1), () =>
+                         {
+-                            BaseGump.SendGump(new NewAnimalLoreGump((PlayerMobile)from, c));
++                            PetTrainingHelper.SendLoreGump(from, c);
+                         });
+                 }
+                 else

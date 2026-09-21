@@ -1,0 +1,9 @@
+.git
+.github
+Client/
+Saves/
+Saves.backup*/
+Logs/
+upstream/
+bin/
+obj/

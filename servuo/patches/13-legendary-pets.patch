@@ -1,0 +1,1277 @@
+diff --git a/Scripts/Mobiles/Normal/FireSteed.cs b/Scripts/Mobiles/Normal/FireSteed.cs
+index 6396b8a..64a7a64 100644
+--- a/Scripts/Mobiles/Normal/FireSteed.cs
++++ b/Scripts/Mobiles/Normal/FireSteed.cs
+@@ -1,11 +1,27 @@
+-using System;
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using Server.Items;
++using Server.Mobiles;
++using System;
+ 
+ namespace Server.Mobiles
+ {
++    public interface ILegendaryPet
++    {
++        bool IsLegendary { get; }
++    }
++
+     [CorpseName("a fire steed corpse")]
+-    public class FireSteed : BaseMount
++    public class FireSteed : BaseMount, ILegendaryPet
+     {
++        private bool m_IsLegendary;
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public FireSteed()
+             : this("a fire steed")
+@@ -58,32 +74,74 @@ namespace Server.Mobiles
+         {
+         }
+ 
+-        public override FoodType FavoriteFood
++        public override void OnBeforeSpawn(Point3D location, Map map)
+         {
+-            get
++            base.OnBeforeSpawn(location, map);
++
++            double spawnRate = Config.Get("LegendaryPets.FireSteed.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
+             {
+-                return FoodType.Meat;
++                ConvertToLegendary();
+             }
+         }
+-        public override PackInstinct PackInstinct
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true;
++            this.Name = "a fire steed";
++            this.Hue = 1174;
++            this.ControlSlots = 1;
++            this.MinTameSkill = 120.0;
++            this.SetStr(410, 440);
++            this.SetHits(300, 375);
++            this.SetSkill(SkillName.Magery, 80.0, 100.0);
++            this.RemoveSpecialAbility(SpecialAbility.DragonBreath);
++            this.SetSpecialAbility(SpecialAbility.Inferno);
++        }
++
++        public override TrainingDefinition TrainingDefinition
+         {
+             get
+             {
+-                return PackInstinct.Daemon | PackInstinct.Equine;
++                if (m_IsLegendary)
++                {
++                    return new TrainingDefinition(
++                        typeof(FireSteed),
++                        Class.Magical,
++                        MagicalAbility.Dragon2,
++                        PetTrainingHelper.SpecialAbilityMagical2,
++                        PetTrainingHelper.WepAbility2,
++                        PetTrainingHelper.AreaEffectArea2,
++                        1, 5);
++                }
++                return null;
+             }
+         }
+ 
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
++        public override FoodType FavoriteFood => FoodType.Meat;
++        public override PackInstinct PackInstinct => PackInstinct.Daemon | PackInstinct.Equine;
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+-
+-            writer.Write((int)1); // version
++            writer.Write((int)2);
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+         {
+             base.Deserialize(reader);
+-
+             int version = reader.ReadInt();
+ 
+             if (version < 1)
+@@ -91,13 +149,12 @@ namespace Server.Mobiles
+                 for (int i = 0; i < Skills.Length; ++i)
+                 {
+                     Skills[i].Cap = Math.Max(100.0, Skills[i].Cap * 0.9);
+-
+-                    if (Skills[i].Base > Skills[i].Cap)
+-                    {
+-                        Skills[i].Base = Skills[i].Cap;
+-                    }
++                    if (Skills[i].Base > Skills[i].Cap) Skills[i].Base = Skills[i].Cap;
+                 }
+             }
++
++            if (version >= 2)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+ }
+diff --git a/Scripts/Mobiles/Normal/Kirin.cs b/Scripts/Mobiles/Normal/Kirin.cs
+index 28933ad..777ce69 100644
+--- a/Scripts/Mobiles/Normal/Kirin.cs
++++ b/Scripts/Mobiles/Normal/Kirin.cs
+@@ -1,12 +1,23 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+-using Server.Network;
++using Server;
+ using Server.Items;
++using Server.Network;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("a ki-rin corpse")]
+-    public class Kirin : BaseMount
++    public class Kirin : BaseMount, ILegendaryPet
+     {
++        private bool m_IsLegendary; 
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public Kirin()
+             : this("a ki-rin")
+@@ -58,18 +69,151 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            double spawnRate = Config.Get("LegendaryPets.Kirin.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                if (Utility.RandomBool())
++                    ConvertToLegendaryFire();
++                else
++                    ConvertToLegendaryCold();
++            }
++        }
++
++        public void ConvertToLegendaryFire()
++        {
++            m_IsLegendary = true;
++            this.Name = "a fire ki-rin";
++            this.Hue = 1161;
++
++            this.AI = AIType.AI_Melee;
++            this.ControlSlots = 2;
++            this.MinTameSkill = 120.0;
++
++            this.SetStr(375, 450);
++            this.SetDex(87, 100);
++            this.SetInt(175, 250);
++            this.SetHits(450, 550);
++
++            this.SetDamage(21, 28);
++            this.SetDamageType(ResistanceType.Physical, 25);
++            this.SetDamageType(ResistanceType.Fire, 75);
++            this.SetDamageType(ResistanceType.Cold, 0);
++            this.SetDamageType(ResistanceType.Energy, 0);
++
++            this.SetResistance(ResistanceType.Physical, 30, 40);
++            this.SetResistance(ResistanceType.Fire, 55, 75);
++            this.SetResistance(ResistanceType.Cold, 30, 40);
++            this.SetResistance(ResistanceType.Poison, 30, 40);
++            this.SetResistance(ResistanceType.Energy, 20, 30);
++
++            this.SetSkill(SkillName.Wrestling, 90.1, 96.8);
++            this.SetSkill(SkillName.Tactics, 90.3, 99.3);
++            this.SetSkill(SkillName.MagicResist, 75.3, 90.0);
++            this.SetSkill(SkillName.Anatomy, 65.5, 69.4);
++
++            this.SetSkill(SkillName.EvalInt, 0.0);
++            this.SetSkill(SkillName.Magery, 0.0);
++            this.SetSkill(SkillName.Meditation, 0.0);
++
++            this.SetSpecialAbility(SpecialAbility.AngryFire);
++            this.SetWeaponAbility(WeaponAbility.DoubleStrike);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++        }
++
++        public void ConvertToLegendaryCold()
++        {
++            m_IsLegendary = true;
++            this.Name = "a cold ki-rin";
++            this.Hue = 1153;
++
++            this.AI = AIType.AI_Melee;
++            this.ControlSlots = 2;
++            this.MinTameSkill = 120.0;
++
++            this.SetStr(600, 612);
++            this.SetDex(75, 85);
++            this.SetInt(75, 142);
++            this.SetHits(505, 638);
++
++            this.SetDamage(21, 28);
++            this.SetDamageType(ResistanceType.Physical, 25);
++            this.SetDamageType(ResistanceType.Fire, 0);
++            this.SetDamageType(ResistanceType.Cold, 75);
++            this.SetDamageType(ResistanceType.Energy, 0);
++
++            this.SetResistance(ResistanceType.Physical, 55, 75);
++            this.SetResistance(ResistanceType.Fire, 30, 40);
++            this.SetResistance(ResistanceType.Cold, 30, 40);
++            this.SetResistance(ResistanceType.Poison, 30, 40);
++            this.SetResistance(ResistanceType.Energy, 20, 30);
++
++            this.SetSkill(SkillName.Wrestling, 90.1, 96.8);
++            this.SetSkill(SkillName.Tactics, 90.3, 99.3);
++            this.SetSkill(SkillName.MagicResist, 75.3, 90.0);
++            this.SetSkill(SkillName.Anatomy, 65.5, 69.4);
++
++            this.SetSkill(SkillName.EvalInt, 0.0);
++            this.SetSkill(SkillName.Magery, 0.0);
++            this.SetSkill(SkillName.Meditation, 0.0);
++
++            this.SetSpecialAbility(SpecialAbility.FlurryForce);
++            this.SetSpecialAbility(SpecialAbility.Heal);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++        }
++
++        public override WeaponAbility GetWeaponAbility()
++        {
++            if (m_IsLegendary && this.Hue == 1161)
++                return WeaponAbility.DoubleStrike;
++
++            return base.GetWeaponAbility();
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null;
++
++                return new TrainingDefinition(
++                    typeof(Kirin),
++                    Class.MagicalClawedAndTailed,
++                    MagicalAbility.Chivalry | MagicalAbility.Discordance | MagicalAbility.Poisoning | MagicalAbility.BattleDefense | MagicalAbility.Bashing | MagicalAbility.Piercing | MagicalAbility.Slashing | MagicalAbility.WrestlingMastery,
++                    PetTrainingHelper.SpecialAbilityClawedTailedAndMagical2,
++                    PetTrainingHelper.WepAbility2,
++                    PetTrainingHelper.AreaEffectArea2,
++                    2, 5);
++            }
++        }
++
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override bool AllowFemaleRider
+         {
+             get
+             {
+-                return false;
++                return true;
+             }
+         }
+         public override bool AllowFemaleTamer
+         {
+             get
+             {
+-                return false;
++                return true;
+             }
+         }
+         public override bool InitialInnocent
+@@ -156,7 +300,7 @@ namespace Server.Mobiles
+             this.AddLoot(LootPack.Potions);
+         }
+ 
+-		public override void OnDeath(Container c)
++        public override void OnDeath(Container c)
+         {
+             base.OnDeath(c);
+ 
+@@ -168,7 +312,8 @@ namespace Server.Mobiles
+         {
+             base.Serialize(writer);
+ 
+-            writer.Write((int)1); // version
++            writer.Write((int)2); // version bump 1 -> 2
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+@@ -179,6 +324,9 @@ namespace Server.Mobiles
+ 
+             if (version == 0)
+                 this.AI = AIType.AI_Mage;
++
++            if (version >= 2)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+ }
+diff --git a/Scripts/Mobiles/Normal/Nightmare.cs b/Scripts/Mobiles/Normal/Nightmare.cs
+index 6260d39..798186a 100644
+--- a/Scripts/Mobiles/Normal/Nightmare.cs
++++ b/Scripts/Mobiles/Normal/Nightmare.cs
+@@ -1,11 +1,21 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ using Server.Items;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("a nightmare corpse")]
+-    public class Nightmare : BaseMount
++    public class Nightmare : BaseMount, ILegendaryPet
+     {
++        private bool m_IsLegendary; 
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public Nightmare()
+             : this("a nightmare")
+@@ -51,13 +61,13 @@ namespace Server.Mobiles
+             ControlSlots = 2;
+             MinTameSkill = 95.1;
+ 
+-			switch (Utility.Random(12))
++            switch (Utility.Random(12))
+             {
+                 case 0: PackItem(new BloodOathScroll()); break;
+                 case 1: PackItem(new HorrificBeastScroll()); break;
+                 case 2: PackItem(new StrangleScroll()); break;
+                 case 3: PackItem(new VengefulSpiritScroll()); break;
+-			}
++            }
+ 
+             switch (Utility.Random(4))
+             {
+@@ -99,6 +109,62 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            double spawnRate = Config.Get("LegendaryPets.Nightmare.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                ConvertToLegendary();
++            }
++        }
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true;
++            this.Name = "a nightmare";
++            this.Hue = 2040;
++
++            this.ControlSlots = 1;
++            this.MinTameSkill = 120.0;
++
++            this.SetSkill(SkillName.Healing, 72.2, 98.9);
++
++            this.RemoveSpecialAbility(SpecialAbility.DragonBreath);
++            this.SetSpecialAbility(SpecialAbility.Heal);
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (m_IsLegendary)
++                {
++                    return new TrainingDefinition(
++                        typeof(Nightmare),
++                        Class.MagicalAndNecromantic,
++                        MagicalAbility.Variety2,
++                        PetTrainingHelper.SpecialAbilityNecroMagical,
++                        PetTrainingHelper.WepAbility2,
++                        PetTrainingHelper.AreaEffectArea2,
++                        1, 5);
++                }
++                return null; // falls through to PetTrainingHelper.Definitions
++            }
++        }
++
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override int Meat
+         {
+             get
+@@ -154,7 +220,8 @@ namespace Server.Mobiles
+         {
+             base.Serialize(writer);
+ 
+-            writer.Write((int)0); // version
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+@@ -162,6 +229,9 @@ namespace Server.Mobiles
+             base.Deserialize(reader);
+ 
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+ }
+diff --git a/Scripts/Mobiles/Normal/OsseinRam.cs b/Scripts/Mobiles/Normal/OsseinRam.cs
+index 4607402..5b538e3 100644
+--- a/Scripts/Mobiles/Normal/OsseinRam.cs
++++ b/Scripts/Mobiles/Normal/OsseinRam.cs
+@@ -1,17 +1,28 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ using Server.Items;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("an ossein ram corpse")]
+-    public class OsseinRam : BaseCreature
++    public class OsseinRam : BaseCreature, ILegendaryPet
+     {
++        private bool m_IsLegendary;
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public OsseinRam() : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
+         {
+-            Name = "Ossein Ram";
++
++            Name = "an ossein ram";
+             Body = 0x591;
+-            Female = true;
++            BaseSoundID = 0x99;
+ 
+             SetStr(300, 400);
+             SetDex(80, 100);
+@@ -57,16 +68,85 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            double spawnRate = Config.Get("LegendaryPets.OsseinRam.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                ConvertToLegendary();
++            }
++        }
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true;
++            this.Name = "a ossein ram";
++
++            int[] legendaryHues = new int[] { 2076, 2706, 2955, 2075 };
++            this.Hue = legendaryHues[Utility.Random(legendaryHues.Length)];
++
++            this.ControlSlots = 1;
++            this.MinTameSkill = 120.0;
++
++            this.SetMagicalAbility(MagicalAbility.Necromage);
++            this.SetSkill(SkillName.Necromancy, 50.6, 75.0);
++
++            // Remove weapon abilities granted by base constructor and BattleDefense
++            this.RemoveWeaponAbility(WeaponAbility.MortalStrike);
++            this.RemoveMagicalAbility(MagicalAbility.BattleDefense);
++            this.RemoveWeaponAbility(WeaponAbility.ParalyzingBlow);
++            this.RemoveWeaponAbility(WeaponAbility.Disarm);
++
++            this.SetWeaponAbility(WeaponAbility.DoubleStrike);
++            this.SetSpecialAbility(SpecialAbility.LifeLeech);
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null;
++
++                return new TrainingDefinition(
++                    typeof(OsseinRam),
++                    Class.None,
++                    MagicalAbility.Necromage | MagicalAbility.Necromancy | MagicalAbility.Piercing | MagicalAbility.Slashing | MagicalAbility.Bashing | MagicalAbility.WrestlingMastery,
++                    new SpecialAbility[] { SpecialAbility.LifeLeech, SpecialAbility.ManaDrain, SpecialAbility.Repel, SpecialAbility.SearingWounds },
++                    PetTrainingHelper.WepAbility12,
++                    PetTrainingHelper.AreaEffectArea2,
++                    1, 5);
++            }
++        }
++
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+-            writer.Write((int)0); // version
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+         {
+             base.Deserialize(reader);
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/Scripts/Mobiles/Normal/Phoenix.cs b/Scripts/Mobiles/Normal/Phoenix.cs
+index 4e91acb..fca1856 100644
+--- a/Scripts/Mobiles/Normal/Phoenix.cs
++++ b/Scripts/Mobiles/Normal/Phoenix.cs
+@@ -1,10 +1,20 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("a phoenix corpse")]
+-    public class Phoenix : BaseCreature, IAuraCreature
++    public class Phoenix : BaseCreature, IAuraCreature, ILegendaryPet
+     {
++        private bool m_IsLegendary; 
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public Phoenix()
+             : base(AIType.AI_Mage, FightMode.Aggressor, 10, 1, 0.2, 0.4)
+@@ -54,6 +64,81 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            // 10% chance a Legendary version spawns, equally split across 3 variants
++            double spawnRate = Config.Get("LegendaryPets.Phoenix.SpawnRate", 0.15);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                switch (Utility.Random(3))
++                {
++                    case 0: ConvertToLegendaryMagery(); break;
++                    case 1: ConvertToLegendaryMysticism(); break;
++                    case 2: ConvertToLegendarySpellweaving(); break;
++                }
++            }
++        }
++
++        public void ConvertToLegendaryMagery()
++        {
++            m_IsLegendary = true;
++            this.Name = "a magery phoenix";
++            this.Hue = 2753;
++
++            this.AI = AIType.AI_Mage;
++            this.ControlSlots = 3;
++            this.MinTameSkill = 120.0;
++
++            this.SetSkill(SkillName.EvalInt, 200.0, 250.0);
++            this.SetSkill(SkillName.Magery, 100.0, 100.0);
++
++            this.SetMagicalAbility(MagicalAbility.MageryMastery);
++            this.SetAreaEffect(AreaEffect.AuraDamage);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++        }
++
++        public void ConvertToLegendaryMysticism()
++        {
++            m_IsLegendary = true;
++            this.Name = "a mysticism phoenix";
++            this.Hue = 1995;
++
++            this.AI = AIType.AI_Mystic;
++            this.ControlSlots = 3;
++            this.MinTameSkill = 120.0;
++
++            this.SetSkill(SkillName.Mysticism, 100.0, 100.0);
++            this.SetSkill(SkillName.Focus, 150.0, 225.0);
++            this.SetSkill(SkillName.Magery, 0, 0);
++            this.SetSkill(SkillName.EvalInt, 0, 0);
++
++            this.SetMagicalAbility(MagicalAbility.Mysticism);
++            this.SetAreaEffect(AreaEffect.AuraDamage);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++        }
++
++        public void ConvertToLegendarySpellweaving()
++        {
++            m_IsLegendary = true;
++            this.Name = "a spellweaving phoenix";
++            this.Hue = 2953;
++
++            this.AI = AIType.AI_Spellweaving;
++            this.ControlSlots = 3;
++            this.MinTameSkill = 120.0;
++
++            this.SetSkill(SkillName.Spellweaving, 225.0, 225.0);
++            this.SetSkill(SkillName.Magery, 0, 0);
++            this.SetSkill(SkillName.EvalInt, 0, 0);
++
++            this.SetMagicalAbility(MagicalAbility.Spellweaving);
++            this.SetAreaEffect(AreaEffect.AuraDamage);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++        }
++
+         public override bool CanAngerOnTame { get { return true; } }
+         public override int Meat { get { return 1; } }
+         public override MeatType MeatType { get { return MeatType.Bird; } }
+@@ -77,22 +162,79 @@ namespace Server.Mobiles
+             }
+         }
+ 
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null; // falls through to PetTrainingHelper.Definitions
++
++                if (AI == AIType.AI_Mystic)
++                {
++                    return new TrainingDefinition(
++                        typeof(Phoenix),
++                        Class.MagicalAndClawed,
++                        MagicalAbility.Poisoning | MagicalAbility.Discordance | MagicalAbility.Chivalry,
++                        PetTrainingHelper.SpecialAbilityPhoenix,
++                        PetTrainingHelper.WepAbility1,
++                        PetTrainingHelper.AreaEffectArea2,
++                        3, 5);
++                }
++
++                if (AI == AIType.AI_Spellweaving)
++                {
++                    return new TrainingDefinition(
++                        typeof(Phoenix),
++                        Class.MagicalAndClawed,
++                        MagicalAbility.Poisoning | MagicalAbility.Discordance | MagicalAbility.Chivalry,
++                        PetTrainingHelper.SpecialAbilityPhoenix,
++                        PetTrainingHelper.WepAbility1,
++                        PetTrainingHelper.AreaEffectArea2,
++                        3, 5);
++                }
++
++                // AI_Mage (Legendary Magery)
++                return new TrainingDefinition(
++                    typeof(Phoenix),
++                    Class.MagicalAndClawed,
++                    MagicalAbility.Poisoning | MagicalAbility.Discordance | MagicalAbility.Chivalry,
++                    PetTrainingHelper.SpecialAbilityPhoenix,
++                    PetTrainingHelper.WepAbility1,
++                    PetTrainingHelper.AreaEffectArea2,
++                    3, 5);
++            }
++        }
++
+         public override void GenerateLoot()
+         {
+             AddLoot(LootPack.FilthyRich);
+             AddLoot(LootPack.Rich);
+         }
+ 
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+-            writer.Write((int)0);
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+         {
+             base.Deserialize(reader);
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+ }
+diff --git a/Scripts/Mobiles/Normal/PolarBear.cs b/Scripts/Mobiles/Normal/PolarBear.cs
+index 1f36875..cb76c01 100644
+--- a/Scripts/Mobiles/Normal/PolarBear.cs
++++ b/Scripts/Mobiles/Normal/PolarBear.cs
+@@ -1,17 +1,25 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("a polar bear corpse")]
+     [TypeAlias("Server.Mobiles.Polarbear")]
+-    public class PolarBear : BaseCreature
++    public class PolarBear : BaseMount, ILegendaryPet
+     {
++        private bool m_IsLegendary;
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public PolarBear()
+-            : base(AIType.AI_Animal, FightMode.Aggressor, 10, 1, 0.2, 0.4)
++            : base("a polar bear", 213, 0x3EC5, AIType.AI_Animal, FightMode.Aggressor, 10, 1, 0.2, 0.4)
+         {
+-            this.Name = "a polar bear";
+-            this.Body = 213;
+             this.BaseSoundID = 0xA3;
+ 
+             this.SetStr(116, 140);
+@@ -49,6 +57,94 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            if (map == Map.Tokuno && IsInWinterSpur(location.X, location.Y))
++            {
++                double spawnRate = Config.Get("LegendaryPets.PolarBear.SpawnRate", 0.10);
++
++                if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++                {
++                    ConvertToLegendary();
++                }
++            }
++        }
++
++        private bool IsInWinterSpur(int x, int y)
++        {
++            // Define Triangle Vertices: A(846, 139), B(1002, 146), C(905, 34)
++            float d1 = GetSide(x, y, 846, 139, 1002, 146);
++            float d2 = GetSide(x, y, 1002, 146, 905, 34);
++            float d3 = GetSide(x, y, 905, 34, 846, 139);
++
++            bool has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
++            bool has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
++
++            return !(has_neg && has_pos);
++        }
++
++        private float GetSide(int px, int py, int x1, int y1, int x2, int y2)
++        {
++            return (px - x2) * (y1 - y2) - (x1 - x2) * (py - y2);
++        }
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true;
++            this.Name = "a polar bear";
++
++            int[] legendaryHues = new int[] { 1153, 2953 };
++            this.Hue = legendaryHues[Utility.Random(legendaryHues.Length)];
++
++            this.AI = AIType.AI_Melee;
++
++            this.SetDamage(21, 28);
++            this.SetDamageType(ResistanceType.Physical, 0);
++            this.SetDamageType(ResistanceType.Cold, 50);
++            this.SetDamageType(ResistanceType.Energy, 50);
++
++            this.SetHits(1010, 1275);
++
++            this.SetResistance(ResistanceType.Physical, 50, 65);
++            this.SetResistance(ResistanceType.Fire, 25, 45);
++            this.SetResistance(ResistanceType.Cold, 70, 85);
++            this.SetResistance(ResistanceType.Poison, 30, 50);
++            this.SetResistance(ResistanceType.Energy, 70, 85);
++
++            this.SetSkill(SkillName.Wrestling, 90.1, 96.8);
++            this.SetSkill(SkillName.Tactics, 90.3, 99.3);
++            this.SetSkill(SkillName.MagicResist, 75.3, 90.0);
++            this.SetSkill(SkillName.Anatomy, 65.5, 69.4);
++            this.SetSkill(SkillName.Healing, 72.2, 98.9);
++
++            this.MinTameSkill = 120.0;
++            this.ControlSlots = 2;
++            this.ControlSlotsMax = 5;
++            this.SetSpecialAbility(SpecialAbility.ColossalRage);
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null;
++
++                return new TrainingDefinition(
++                    typeof(PolarBear),
++                    Class.Clawed,
++                    MagicalAbility.Chivalry | MagicalAbility.Discordance | MagicalAbility.Poisoning | MagicalAbility.BattleDefense | MagicalAbility.Bashing | MagicalAbility.Piercing | MagicalAbility.Slashing | MagicalAbility.WrestlingMastery,
++                    new SpecialAbility[] { SpecialAbility.GraspingClaw, SpecialAbility.ManaDrain, SpecialAbility.Repel, SpecialAbility.SearingWounds, SpecialAbility.LifeLeech, SpecialAbility.StealLife, SpecialAbility.FlurryForce },
++                    PetTrainingHelper.WepAbility2,
++                    PetTrainingHelper.AreaEffectArea2,
++                    2, 5);
++            }
++        }
++
++        public override bool CanAngerOnTame { get { return m_IsLegendary; } }
++
+         public override int Meat
+         {
+             get
+@@ -77,11 +173,22 @@ namespace Server.Mobiles
+                 return PackInstinct.Bear;
+             }
+         }
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+ 
+-            writer.Write((int)0);
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+@@ -89,6 +196,9 @@ namespace Server.Mobiles
+             base.Deserialize(reader);
+ 
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/Scripts/Mobiles/Normal/ShadowWyrm.cs b/Scripts/Mobiles/Normal/ShadowWyrm.cs
+index 26f4027..306500a 100644
+--- a/Scripts/Mobiles/Normal/ShadowWyrm.cs
++++ b/Scripts/Mobiles/Normal/ShadowWyrm.cs
+@@ -1,10 +1,20 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ 
+ namespace Server.Mobiles
+ {
+     [CorpseName("a shadow wyrm corpse")]
+-    public class ShadowWyrm : BaseCreature
++    public class ShadowWyrm : BaseCreature, ILegendaryPet
+     {
++        private bool m_IsLegendary;
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public ShadowWyrm()
+             : base(AIType.AI_NecroMage, FightMode.Closest, 10, 1, 0.2, 0.4)
+@@ -57,6 +67,75 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            // 10% chance Legendary version spawns
++            double spawnRate = Config.Get("LegendaryPets.ShadowWyrm.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                ConvertToLegendary();
++            }
++        }
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true;
++            this.Name = "a shadow wyrm";
++
++            this.Hue = 1910;
++            this.ControlSlots = 2;
++            this.MinTameSkill = 120.0;
++
++            // Attributes and Stats
++            this.SetStr(500, 600);
++            this.SetDex(150, 200);
++            this.SetInt(600, 700);
++            this.SetHits(450, 500);
++
++            // Damage Types (Cold 20%, Poison 80%)
++            this.SetDamageType(ResistanceType.Physical, 0);
++            this.SetDamageType(ResistanceType.Fire, 0);
++            this.SetDamageType(ResistanceType.Cold, 20);
++            this.SetDamageType(ResistanceType.Poison, 80);
++            this.SetDamageType(ResistanceType.Energy, 0);
++
++            // Resistances
++            this.SetResistance(ResistanceType.Poison, 60, 70);
++
++            // Added Skills
++            this.SetSkill(SkillName.Necromancy, 130.0, 150.0);
++            this.SetSkill(SkillName.SpiritSpeak, 130.0, 150.0);
++
++            // --- Special Abilities & Immunities ---
++
++            // Remove DragonBreath, then add Life Leech
++            this.RemoveSpecialAbility(SpecialAbility.DragonBreath);
++            this.SetSpecialAbility(SpecialAbility.LifeLeech);
++            this.RemoveMagicalAbility(MagicalAbility.Magery);
++            this.SetMagicalAbility(MagicalAbility.Necromancy);
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null;
++
++                return new TrainingDefinition(
++                    typeof(ShadowWyrm),
++                    Class.MagicalAndNecromantic,
++                    MagicalAbility.Necromage | MagicalAbility.Necromancy | MagicalAbility.Poisoning | MagicalAbility.Discordance | MagicalAbility.Bashing | MagicalAbility.Piercing | MagicalAbility.Slashing | MagicalAbility.WrestlingMastery,
++                    PetTrainingHelper.SpecialAbilityNecroMagical,
++                    PetTrainingHelper.WepAbility2,
++                    PetTrainingHelper.AreaEffectArea2,
++                    2, 5);
++            }
++        }
++
+         public override bool CanAngerOnTame { get { return true; } }
+         public override bool ReacquireOnMovement { get { return !Controlled; } }
+         public override bool AutoDispel { get { return !Controlled; } }
+@@ -70,6 +149,8 @@ namespace Server.Mobiles
+         public override HideType HideType { get { return HideType.Barbed; } }
+         public override bool CanFly { get { return true; } }
+ 
++
++
+         public override void GenerateLoot()
+         {
+             AddLoot(LootPack.FilthyRich, 3);
+@@ -86,16 +167,31 @@ namespace Server.Mobiles
+             return 0x2D1;
+         }
+ 
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                // #FFD700 is the hex code for Gold
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+-            writer.Write((int)0);
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+         {
+             base.Deserialize(reader);
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+     }
+ }
+diff --git a/Scripts/Mobiles/Normal/TsukiWolf.cs b/Scripts/Mobiles/Normal/TsukiWolf.cs
+index af907d4..169bd9f 100644
+--- a/Scripts/Mobiles/Normal/TsukiWolf.cs
++++ b/Scripts/Mobiles/Normal/TsukiWolf.cs
+@@ -1,13 +1,23 @@
++/*
++ * UO Wildlands Custom Script: Legendary Pets
++ * Derived from ServUO Core
++ * Author: Feng / UO Wildlands Team
++ * Source: https://www.servuo.dev/archive/custom-pet-bundle.2610/
++ * Licensed under the GNU General Public License v3.0 (GPL-3.0)
++ */
+ using System;
+ using System.Collections;
+ using Server.Items;
+ 
++
+ namespace Server.Mobiles
+ {
+     [CorpseName("a tsuki wolf corpse")]
+-    public class TsukiWolf : BaseCreature
++    public class TsukiWolf : BaseCreature, ILegendaryPet
+     {
+-        private static readonly Hashtable m_Table = new Hashtable();
++        private bool m_IsLegendary; 
++        public bool IsLegendary => m_IsLegendary;
++
+         [Constructable]
+         public TsukiWolf()
+             : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
+@@ -15,7 +25,7 @@ namespace Server.Mobiles
+             Name = "a tsuki wolf";
+             Body = 250;
+ 
+-            switch( Utility.Random(3) )
++            switch (Utility.Random(3))
+             {
+                 case 0:
+                     Hue = Utility.RandomNeutralHue();
+@@ -47,19 +57,18 @@ namespace Server.Mobiles
+             SetSkill(SkillName.Wrestling, 97.6, 107.5);
+             SetSkill(SkillName.Necromancy, 20.0);
+             SetSkill(SkillName.SpiritSpeak, 20.0);
+-            SetSkill(SkillName.Anatomy, 40.0, 50.0);
+             SetSkill(SkillName.DetectHidden, 100.0);
+             SetSkill(SkillName.Parry, 90.0, 100.0);
+ 
+             Fame = 8500;
+             Karma = -8500;
+ 
+-            
++
+             if (Core.ML && Utility.RandomDouble() < .33)
+                 PackItem(Engines.Plants.Seed.RandomPeculiarSeed(1));
+ 
+             PackBodyPartOrBones();
+-            
++
+             Tamable = true;
+             ControlSlots = 3;
+             MinTameSkill = 96.0;
+@@ -72,14 +81,67 @@ namespace Server.Mobiles
+         {
+         }
+ 
++        // 1. Fixed the return type from 'bool' to 'void'
++        public override void OnBeforeSpawn(Point3D location, Map map)
++        {
++            base.OnBeforeSpawn(location, map);
++
++            // 10% chance Legendary version spawns from killing regular Tsuki Wolves
++            double spawnRate = Config.Get("LegendaryPets.TsukiWolf.SpawnRate", 0.10);
++
++            if (spawnRate > 0 && Utility.RandomDouble() < spawnRate)
++            {
++                ConvertToLegendary();
++            }
++        }
++
++        public void ConvertToLegendary()
++        {
++            m_IsLegendary = true; // Set our flag to true
++            this.Name = "a tsuki wolf";
++
++
++            int[] legendaryHues = new int[] { 1929, 1918, 1910, 1462, 1158, 2716, 2747 };
++            this.Hue = legendaryHues[Utility.Random(legendaryHues.Length)];
++
++            this.ControlSlots = 2;
++            this.MinTameSkill = 120.0;
++
++            this.SetDamageType(ResistanceType.Physical, 50);
++            this.SetDamageType(ResistanceType.Cold, 10);
++            this.SetDamageType(ResistanceType.Energy, 40);
++
++            this.SetSpecialAbility(SpecialAbility.LifeLeech);
++            this.SetSpecialAbility(SpecialAbility.Rage);
++            //this.SetWeaponAbility(WeaponAbility.ArmorIgnore);
++        }
++
++        public override TrainingDefinition TrainingDefinition
++        {
++            get
++            {
++                if (!m_IsLegendary)
++                    return null;
++
++                return new TrainingDefinition(
++                    typeof(TsukiWolf),
++                    Class.MagicalClawedTailedNecromanticAndTokuno,
++                    MagicalAbility.TsukiWolf,
++                    PetTrainingHelper.SpecialAbilityTsukiWolf,
++                    PetTrainingHelper.WepAbility2,
++                    PetTrainingHelper.AreaEffectArea2,
++                    2, 5);
++            }
++        }
++
+         public override bool CanAngerOnTame { get { return true; } }
+ 
+-		public override int TreasureMapLevel { get { return 3; } }
++        public override int TreasureMapLevel { get { return 3; } }
+         public override int Meat { get { return 4; } }
+         public override int Hides { get { return 25; } }
+         public override FoodType FavoriteFood { get { return FoodType.Meat; } }
+-		
+-		public override int GetAngerSound()
++
++        public override int GetAngerSound()
+         {
+             return 0x52D;
+         }
+@@ -109,18 +171,42 @@ namespace Server.Mobiles
+             AddLoot(LootPack.FilthyRich);
+         }
+ 
++        public override void AddNameProperties(ObjectPropertyList list)
++        {
++            base.AddNameProperties(list);
++
++            if (m_IsLegendary)
++            {
++                // #FFD700 is the hex code for Gold
++                list.Add("<BASEFONT COLOR=#FFD700>Legendary</BASEFONT>");
++            }
++        }
++
+         public override void Serialize(GenericWriter writer)
+         {
+             base.Serialize(writer);
+-
+-            writer.Write((int)0);
++            writer.Write((int)1); // version bump 0 -> 1
++            writer.Write(m_IsLegendary);
+         }
+ 
+         public override void Deserialize(GenericReader reader)
+         {
+             base.Deserialize(reader);
+-
+             int version = reader.ReadInt();
++
++            if (version >= 1)
++                m_IsLegendary = reader.ReadBool();
+         }
+-    }
+-}
++
++        // --- ADD THE FIX HERE ---
++        public override WeaponAbility GetWeaponAbility()
++        {
++            if (m_IsLegendary)
++                return WeaponAbility.ArmorIgnore;
++
++            return base.GetWeaponAbility();
++        }
++        // -----------------------
++
++    } 
++} 

@@ -1,0 +1,12 @@
+diff --git a/Scripts/Scripts.csproj b/Scripts/Scripts.csproj
+index 23f0bee..624470f 100644
+--- a/Scripts/Scripts.csproj
++++ b/Scripts/Scripts.csproj
+@@ -10,6 +10,7 @@
+ 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+ 		<UseWindowsForms>false</UseWindowsForms>
+ 		<Platforms>x64</Platforms>
++		<OutputPath>..\</OutputPath>
+ 	</PropertyGroup>
+ 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+ 		<OutputPath>..\</OutputPath>

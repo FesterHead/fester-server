@@ -1,0 +1,316 @@
+diff --git a/Scripts/Gumps/TithingGump.cs b/Scripts/Gumps/TithingGump.cs
+index d7e8724..f4129c2 100644
+--- a/Scripts/Gumps/TithingGump.cs
++++ b/Scripts/Gumps/TithingGump.cs
+@@ -1,19 +1,23 @@
+ using System;
++using System.Globalization;
+ using Server.Items;
+-using Server.Network;
+ using Server.Mobiles;
+-using System.Globalization;
++using Server.Network;
+ 
+ namespace Server.Gumps
+ {
+     public class TithingGump : Gump
+     {
+-        private int MaxTithing = 100000;
++        public const int MaxTithing = 100000;
+ 
+-        public TithingGump(Mobile from, int offer)
++        private readonly int m_Offer;
++
++        public TithingGump(Mobile from, int offer = 0)
+             : base(100, 100)
+         {
+-            int totalGold = Banker.GetBalance(from);
++            m_Offer = offer;
++
++            int totalGold = GetTotalGold(from);
+ 
+             string gold = totalGold >= MaxTithing ? "100,000+" : totalGold.ToString("N0", CultureInfo.GetCultureInfo("en-US"));
+ 
+@@ -29,7 +33,7 @@ namespace Server.Gumps
+ 
+             AddHtmlLocalized(43, 275, 200, 18, 1159137, 0x7FFF, false, false); // How much whilst thou tithe?
+             AddBackground(85, 295, 80, 22, 0x2486);
+-            AddTextEntry(87, 297, 76, 18, 0x0, 1, offer > 0 ? string.Format("{0}", offer) : "", 6);
++            AddTextEntry(87, 297, 76, 18, 0x0, 1, offer > 0 ? offer.ToString() : "", 6);
+ 
+             AddButton(205, 321, 0xFB7, 0xFB8, 2, GumpButtonType.Reply, 0); // OK
+ 
+@@ -41,17 +45,18 @@ namespace Server.Gumps
+         {
+             Mobile from = sender.Mobile;
+ 
+-            int m_Offer;
++            if (from == null || from.Deleted || !from.Alive)
++                return;
+ 
+             switch (info.ButtonID)
+             {
+-                case 0:
++                case 0: // Right-click / Cancel
+                     {
+                         // You have decided to tithe no gold to the shrine.
+                         from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060193);
+                         break;
+                     }
+-                case 1:
++                case 1: // Tithe Maximum
+                     {
+                         if (from.TithingPoints >= MaxTithing)
+                         {
+@@ -59,25 +64,22 @@ namespace Server.Gumps
+                             break;
+                         }
+ 
+-                        int totalGold = Banker.GetBalance(from);
++                        int totalGold = GetTotalGold(from);
+ 
+                         if (totalGold <= 0)
+                         {
+-                            // You have decided to tithe no gold to the shrine.
+-                            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060193);
++                            // You do not have enough gold to tithe that amount!
++                            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194);
+                             break;
+                         }
+ 
+-                        m_Offer = MaxTithing - from.TithingPoints;
+-
+-                        if (m_Offer > totalGold)
+-                            m_Offer = totalGold;
+-
+-                        from.SendGump(new TithingGump(from, m_Offer));
++                        int maxTithe = Math.Min(totalGold, MaxTithing - from.TithingPoints);
+ 
++                        from.CloseGump(typeof(TithingGump));
++                        from.SendGump(new TithingGump(from, maxTithe));
+                         break;
+                     }
+-                case 2:
++                case 2: // OK
+                     {
+                         if (from.TithingPoints >= MaxTithing)
+                         {
+@@ -85,58 +87,150 @@ namespace Server.Gumps
+                             break;
+                         }
+ 
+-                        int totalGold = Banker.GetBalance(from);
++                        int totalGold = GetTotalGold(from);
+ 
+                         if (totalGold <= 0)
+                         {
+-                            // You have decided to tithe no gold to the shrine.
+-                            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060193);
++                            // You do not have enough gold to tithe that amount!
++                            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194);
+                             break;
+                         }
+ 
++                        int amount = 0;
+                         TextRelay tr = info.GetTextEntry(1);
+ 
+-                        if (tr != null)
++                        if (tr != null && !string.IsNullOrWhiteSpace(tr.Text))
+                         {
+-                            string text = tr.Text;
+-                            int num = Utility.ToInt32(text);
+-
+-                            if (num > 0)
+-                            {
+-                                if (num > totalGold)
+-                                    m_Offer = totalGold;
+-                                else
+-                                    m_Offer = num;
+-
+-                                if ((from.TithingPoints + m_Offer) > MaxTithing)
+-                                    m_Offer = MaxTithing - from.TithingPoints;
+-
+-                                Container pack = from.Backpack;
+-
+-                                if (Banker.Withdraw(from, m_Offer, true))
+-                                {
+-                                    // You tithe gold to the shrine as a sign of devotion.
+-                                    from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060195);
+-                                    from.TithingPoints += m_Offer;
+-
+-                                    from.PlaySound(0x243);
+-                                    from.PlaySound(0x2E6);
+-                                }
+-                                else
+-                                {
+-                                    // You do not have enough gold to tithe that amount!
+-                                    from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194);
+-                                }
+-                            }
+-                            else
+-                            {
+-                                from.SendLocalizedMessage(1159140); // You have entered an invalid entry. You must enter a number between 1 and 100,000.
+-                            }
++                            amount = Utility.ToInt32(tr.Text.Trim());
+                         }
+ 
++                        // Robust fallback: if client text relay was empty or failed (desync / third-party clients),
++                        // use the initial/pre-set offer if one was established (e.g. via Tithe Maximum).
++                        if (amount <= 0 && m_Offer > 0)
++                        {
++                            amount = m_Offer;
++                        }
++
++                        if (amount <= 0)
++                        {
++                            from.SendLocalizedMessage(1159140); // You have entered an invalid entry. You must enter a number between 1 and 100,000.
++                            break;
++                        }
++
++                        // Clamp amount cleanly between 1 and available gold / remaining tithing cap
++                        int maxAllowed = Math.Min(totalGold, MaxTithing - from.TithingPoints);
++                        if (amount > maxAllowed)
++                        {
++                            amount = maxAllowed;
++                        }
++
++                        DeductAndTithe(from, amount);
+                         break;
+                     }
+             }
+         }
++
++        public static int GetBankGold(Mobile from)
++        {
++            if (from == null)
++                return 0;
++
++            return Banker.GetBalance(from);
++        }
++
++        public static int GetPackGold(Mobile from)
++        {
++            if (from == null || from.Backpack == null)
++                return 0;
++
++            Item[] goldItems = from.Backpack.FindItemsByType(typeof(Gold), true);
++            long total = 0;
++
++            for (int i = 0; i < goldItems.Length; ++i)
++            {
++                total += goldItems[i].Amount;
++            }
++
++            return (int)Math.Min(int.MaxValue, total);
++        }
++
++        public static int GetTotalGold(Mobile from)
++        {
++            if (from == null)
++                return 0;
++
++            long total = (long)GetBankGold(from) + (long)GetPackGold(from);
++            return (int)Math.Min(int.MaxValue, total);
++        }
++
++        private static void DeductAndTithe(Mobile from, int amount)
++        {
++            if (from == null || amount <= 0)
++                return;
++
++            if (from.TithingPoints >= MaxTithing)
++            {
++                from.SendLocalizedMessage(1060840); // You have reached the maximum amount of Tithing Points available.
++                return;
++            }
++
++            if ((from.TithingPoints + amount) > MaxTithing)
++            {
++                amount = MaxTithing - from.TithingPoints;
++            }
++
++            int bankBal = GetBankGold(from);
++            int packBal = GetPackGold(from);
++
++            // Verify the mobile still has sufficient funds across bank and backpack
++            if ((long)bankBal + (long)packBal < amount)
++            {
++                from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194); // You do not have enough gold to tithe that amount!
++                return;
++            }
++
++            int fromBank = Math.Min(amount, bankBal);
++            int fromPack = amount - fromBank;
++
++            // Step 1: Withdraw as much as possible from bank account ledger
++            if (fromBank > 0)
++            {
++                if (!Banker.Withdraw(from, fromBank, false))
++                {
++                    from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194); // You do not have enough gold to tithe that amount!
++                    return;
++                }
++            }
++
++            // Step 2: Deduct any remaining portion from backpack / nested subcontainers
++            if (fromPack > 0)
++            {
++                if (from.Backpack == null || !from.Backpack.ConsumeTotal(typeof(Gold), fromPack, true))
++                {
++                    // Roll back bank withdrawal if backpack deduction fails
++                    if (fromBank > 0)
++                    {
++                        Banker.Deposit(from, fromBank, false);
++                    }
++
++                    from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060194); // You do not have enough gold to tithe that amount!
++                    return;
++                }
++            }
++
++            // If bank gold was consumed, display bank withdrawal notification
++            if (fromBank > 0)
++            {
++                from.SendLocalizedMessage(1155856, fromBank.ToString("N0", CultureInfo.GetCultureInfo("en-US"))); // ~1_AMOUNT~ gold has been removed from your bank box.
++            }
++
++            // Step 3: Credit character TithingPoints (1 gold = 1 point)
++            from.TithingPoints += amount;
++
++            // Devotion overhead message & shrine sound effects
++            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 1060195); // You tithe gold to the shrine as a sign of devotion.
++            from.PlaySound(0x243);
++            from.PlaySound(0x2E6);
++        }
+     }
+ }
+diff --git a/Scripts/Items/Functional/Ankhs.cs b/Scripts/Items/Functional/Ankhs.cs
+index 94432fd..9ae6f29 100644
+--- a/Scripts/Items/Functional/Ankhs.cs
++++ b/Scripts/Items/Functional/Ankhs.cs
+@@ -91,7 +91,10 @@ namespace Server.Items
+             public override void OnClick()
+             {
+                 if (m_Mobile.CheckAlive())
++                {
++                    m_Mobile.CloseGump(typeof(TithingGump));
+                     m_Mobile.SendGump(new TithingGump(m_Mobile, 0));
++                }
+             }
+         }
+     }
+diff --git a/Scripts/Mobiles/NPCs/ShrineHealer.cs b/Scripts/Mobiles/NPCs/ShrineHealer.cs
+index 5e1bd63..82ab039 100644
+--- a/Scripts/Mobiles/NPCs/ShrineHealer.cs
++++ b/Scripts/Mobiles/NPCs/ShrineHealer.cs
+@@ -87,7 +87,10 @@ namespace Server.Mobiles
+             public override void OnClick()
+             {
+                 if (this.m_Mobile.CheckAlive())
++                {
++                    this.m_Mobile.CloseGump(typeof(TithingGump));
+                     this.m_Mobile.SendGump(new TithingGump(this.m_Mobile, 0));
++                }
+             }
+         }
+ 

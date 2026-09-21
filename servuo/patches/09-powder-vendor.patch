@@ -1,0 +1,25 @@
+diff --git a/Scripts/VendorInfo/SBBlacksmith.cs b/Scripts/VendorInfo/SBBlacksmith.cs
+index 8fecf97..f923ec4 100644
+--- a/Scripts/VendorInfo/SBBlacksmith.cs
++++ b/Scripts/VendorInfo/SBBlacksmith.cs
+@@ -34,6 +34,8 @@ namespace Server.Mobiles
+                 this.Add(new GenericBuyInfo(typeof(IronIngot), 5, 16, 0x1BF2, 0, true));
+                 this.Add(new GenericBuyInfo(typeof(Tongs), 13, 14, 0xFBB, 0)); 
+  
++                this.Add(new GenericBuyInfo(typeof(PowderOfTemperament), Config.Get("Vendors.PowderOfTemperamentCost", 10000), Config.Get("Vendors.PowderOfTemperamentCharges", 10), 4102, 2419));
++
+                 this.Add(new GenericBuyInfo(typeof(BronzeShield), 66, 20, 0x1B72, 0));
+                 this.Add(new GenericBuyInfo(typeof(Buckler), 50, 20, 0x1B73, 0));
+                 this.Add(new GenericBuyInfo(typeof(MetalKiteShield), 123, 20, 0x1B74, 0));
+diff --git a/Scripts/VendorInfo/SBTinker.cs b/Scripts/VendorInfo/SBTinker.cs
+index c51032e..9b03841 100644
+--- a/Scripts/VendorInfo/SBTinker.cs
++++ b/Scripts/VendorInfo/SBTinker.cs
+@@ -33,6 +33,7 @@ namespace Server.Mobiles
+         { 
+             public InternalBuyInfo(BaseVendor owner) 
+             { 
++                Add(new GenericBuyInfo(typeof(PowderOfTemperament), Config.Get("Vendors.PowderOfTemperamentCost", 10000), Config.Get("Vendors.PowderOfTemperamentCharges", 10), 4102, 2419));
+                 Add(new GenericBuyInfo(typeof(Clock), 22, 20, 0x104B, 0));
+                 Add(new GenericBuyInfo(typeof(Nails), 3, 20, 0x102E, 0));
+                 Add(new GenericBuyInfo(typeof(ClockParts), 3, 20, 0x104F, 0, true));

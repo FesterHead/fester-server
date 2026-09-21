@@ -29,6 +29,7 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **SWAG**                   | `swag`                 | 80, 81, 443         | Nginx reverse proxy with Let's Encrypt           |
 | **Rating Poster Database** | `rpdb-folders`         | 8750                | Fetches ratings and posters for media            |
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
+| **ServUO**                 | `servuo`               | 2593                | Ultima Online emulator server                    |
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.
 

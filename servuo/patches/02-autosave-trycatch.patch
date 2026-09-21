@@ -1,0 +1,13 @@
+diff --git a/Scripts/Misc/AutoSave.cs b/Scripts/Misc/AutoSave.cs
+index 4106909..e927f69 100644
+--- a/Scripts/Misc/AutoSave.cs
++++ b/Scripts/Misc/AutoSave.cs
+@@ -161,7 +161,7 @@ namespace Server.Misc
+             string saves = Path.Combine(Core.BaseDirectory, "Saves");
+ 
+             if (Directory.Exists(saves))
+-                Directory.Move(saves, Path.Combine(root, m_Backups[m_Backups.Length - 1]));
++                try { Directory.Move(saves, Path.Combine(root, m_Backups[m_Backups.Length - 1])); } catch {}
+ 
+             return anySuccess;
+         }

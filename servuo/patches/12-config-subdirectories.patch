@@ -1,0 +1,18 @@
+diff --git a/Server/Config.cs b/Server/Config.cs
+index a8a0528..0721b80 100644
+--- a/Server/Config.cs
++++ b/Server/Config.cs
+@@ -404,6 +404,13 @@ namespace Server
+ 
+                 _Entries[$"{e.Scope}.{e.Key}"] = e;
+ 
++                var shortScope = Path.GetFileNameWithoutExtension(info.Name);
++
++                if (!string.Equals(shortScope, e.Scope, StringComparison.OrdinalIgnoreCase))
++                {
++                    _Entries[$"{shortScope}.{e.Key}"] = e;
++                }
++
+                 desc.Clear();
+             }
+         }

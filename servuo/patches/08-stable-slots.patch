@@ -1,0 +1,11 @@
+diff --git a/Scripts/Mobiles/NPCs/AnimalTrainer.cs b/Scripts/Mobiles/NPCs/AnimalTrainer.cs
+--- a/Scripts/Mobiles/NPCs/AnimalTrainer.cs
++++ b/Scripts/Mobiles/NPCs/AnimalTrainer.cs
+@@ -151,6 +151,7 @@ namespace Server.Mobiles
+ 			var sklsum = taming + anlore + vetern;
+ 
+             int max = from is PlayerMobile ? ((PlayerMobile)from).RewardStableSlots : 0;
++            max += Math.Max(0, Config.Get("Stables.BaseSlots", 12) - 2);
+ 
+ 			if (sklsum >= 240.0)
+ 			{

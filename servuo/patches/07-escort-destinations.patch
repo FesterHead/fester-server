@@ -1,0 +1,36 @@
+diff --git a/Scripts/Mobiles/NPCs/BaseEscortable.cs b/Scripts/Mobiles/NPCs/BaseEscortable.cs
+--- a/Scripts/Mobiles/NPCs/BaseEscortable.cs
++++ b/Scripts/Mobiles/NPCs/BaseEscortable.cs
+@@ -14,15 +14,11 @@ namespace Server.Mobiles
+         private static readonly string[] m_TownNames = new string[]
+         {
+-            "Cove", "Britain", "Jhelom",
+-            "Minoc", "Ocllo", "Trinsic",
+-            "Vesper", "Yew", "Skara Brae", //Original List, will need to add it back for Pre-ML shards
+-            "Nujel'm", "Moonglow", "Magincia"
++            "Britain",
++            "Minoc",
++            "Vesper",
++            "Skara Brae" // Accessible via the Skara Brae mainland-to-island rope ferry
+         };
+-        private static readonly string[] m_MLTownNames = new string[]
+-        {
+-            "Cove", "Serpent's Hold", "Jhelom", //ML List
+-            "Nujel'm"
+-        };
++        private static readonly string[] m_MLTownNames = m_TownNames;
+
+         private static readonly Hashtable m_EscortTable = new Hashtable();
+         private static readonly TimeSpan m_EscortDelay = TimeSpan.FromMinutes(5.0);
+@@ -446,10 +442,7 @@ namespace Server.Mobiles
+ 
+         public virtual string[] GetPossibleDestinations()
+         {
+-            if (!Core.ML)
+-                return m_TownNames;
+-            else
+-                return m_MLTownNames;
++            return m_TownNames;
+         }
+ 
+         public virtual string PickRandomDestination()
