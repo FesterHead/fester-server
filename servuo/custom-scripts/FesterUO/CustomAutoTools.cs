@@ -100,8 +100,12 @@ namespace Server.Custom
                     }
 
                     string oreType = CraftResources.GetName(resourceType);
+                    int hue = CraftResources.GetHue(resourceType);
+                    if (hue == 0)
+                        hue = 68;
+
                     FestersResourceSatchel.Deposit(from, ingots);
-                    from.SendMessage(68, $"You smelt the vein into {ingotAmount} {oreType} ingots.");
+                    from.SendMessage(hue, $"You smelt the vein into {ingotAmount} {oreType} ingots.");
                 }
             }
 
@@ -176,8 +180,12 @@ namespace Server.Custom
                     }
 
                     string woodType = CraftResources.IsStandard(resourceType) ? "boards" : $"{CraftResources.GetName(resourceType)} boards";
+                    int hue = CraftResources.GetHue(resourceType);
+                    if (hue == 0)
+                        hue = 68;
+
                     FestersResourceSatchel.Deposit(from, boards);
-                    from.SendMessage(68, $"You mill the timber into {boardAmount} {woodType}.");
+                    from.SendMessage(hue, $"You mill the timber into {boardAmount} {woodType}.");
                 }
             }
         }
