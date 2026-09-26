@@ -99,8 +99,9 @@ namespace Server.Custom
                         default:                        ingots = new IronIngot(ingotAmount); break;
                     }
 
+                    string oreType = CraftResources.GetName(resourceType);
                     FestersResourceSatchel.Deposit(from, ingots);
-                    from.SendMessage(68, $"You instantly smelt the vein into {ingotAmount} ingots and stow them.");
+                    from.SendMessage(68, $"You smelt the vein into {ingotAmount} {oreType} ingots.");
                 }
             }
 
@@ -174,8 +175,9 @@ namespace Server.Custom
                         default:                         boards = new Board(boardAmount); break;
                     }
 
+                    string woodType = CraftResources.IsStandard(resourceType) ? "boards" : $"{CraftResources.GetName(resourceType)} boards";
                     FestersResourceSatchel.Deposit(from, boards);
-                    from.SendMessage(68, $"You mill the timber into {boardAmount} boards and stow them.");
+                    from.SendMessage(68, $"You mill the timber into {boardAmount} {woodType}.");
                 }
             }
         }
