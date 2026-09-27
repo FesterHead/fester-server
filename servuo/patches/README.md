@@ -68,6 +68,7 @@ A helper script is provided in `servuo/manage-patches.sh` to maintain and test p
 | [`23-vendor-reagent-stock.patch`](23-vendor-reagent-stock.patch) | `Scripts/Mobiles/NPCs/BaseVendor.cs`<br>`Scripts/VendorInfo/GenericBuy.cs` | Economy & Vendors | Classifies all reagent types (`BaseReagent`, `Bone`, `FertileDirt`) as stackable trade commodities and parameterizes vendor reagent inventory stock via `servuo/Config/ServUO/Vendors.cfg` (`ReagentStockAmount=1000`). |
 | [`24-tmap-book-vendor.patch`](24-tmap-book-vendor.patch) | `Scripts/VendorInfo/SBMapmaker.cs` | Economy & Exploration | Adds Treasure Map and SOS books (`TMapBook`, 1,000 gp via `TMapBookCost`) and Treasure Map Instant Transporters (`TreasureMapDecoder`, 10,000 gp via `TreasureMapDecoderCost`) to NPC Mapmaker inventories parameterized via `servuo/Config/ServUO/Vendors.cfg`. |
 | [`25-sos-decoder-vendor.patch`](25-sos-decoder-vendor.patch) | `Scripts/VendorInfo/SBFisherman.cs` | Economy & Seafaring | Adds SOS Instant Transporters (`SOSDecoder`) to NPC Fisherman inventories parameterized via `servuo/Config/ServUO/Vendors.cfg` (`SOSDecoderCost=10000`). |
+| [`26-sanctuary-ward.patch`](26-sanctuary-ward.patch) | `Scripts/Mobiles/Normal/BaseCreature.cs` | Combat & Creature AI | Hooks `BaseCreature.IsEnemy` to honor `SanctuaryWard.IsProtected`, suppressing hostile creature aggro and targeting against players and their pets while outdoors in the wild across all facets. |
 
 
 ---

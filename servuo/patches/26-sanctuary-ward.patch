@@ -1,0 +1,25 @@
+diff --git a/Scripts/Mobiles/Normal/BaseCreature.cs b/Scripts/Mobiles/Normal/BaseCreature.cs
+index d7a016d..fdf5aa0 100644
+--- a/Scripts/Mobiles/Normal/BaseCreature.cs
++++ b/Scripts/Mobiles/Normal/BaseCreature.cs
+@@ -1317,6 +1317,8 @@ namespace Server.Mobiles
+         }
+         #endregion
+ 
++		public static Func<Mobile, bool> CheckSanctuary { get; set; }
++
+ 		public virtual bool IsEnemy(Mobile m)
+ 		{
+ 			XmlIsEnemy a = (XmlIsEnemy)XmlAttach.FindAttachment(this, typeof(XmlIsEnemy));
+@@ -1339,6 +1341,11 @@ namespace Server.Mobiles
+                 }
+ 
+                 if (TransformationSpellHelper.UnderTransformation(m, typeof(EtherealVoyageSpell)))
++                {
++                    return false;
++                }
++
++                if (CheckSanctuary != null && CheckSanctuary(m))
+                 {
+                     return false;
+                 }

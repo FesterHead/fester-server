@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- Added [26-sanctuary-ward.patch](servuo/patches/26-sanctuary-ward.patch) and [SanctuaryWard.cs](servuo/custom-scripts/FesterUO/SanctuaryWard.cs) providing the Talisman of Sanctuary (`SanctuaryTalisman`), a blessed item carried or equipped to suppress hostile creature aggro and targeting against the player and their controlled pets while outdoors in the wild across all facets (including Felucca), automatically suppressing protection inside dungeons and champion arenas while allowing mobs to defend themselves if attacked. Added to the new player starter kit in [StarterKitDistribution.cs](servuo/custom-scripts/FesterUO/StarterKitDistribution.cs) and available to existing characters via player command `[GetSanctuary`.
 - Added [HarvestConfig.cs](servuo/custom-scripts/FesterUO/HarvestConfig.cs) and new settings in [Harvest.cfg](servuo/Config/FesterUO/Harvest.cfg) to dynamically configure resource bank respawn times (`OreMinRespawnMinutes`, `OreMaxRespawnMinutes`, `TreeMinRespawnMinutes`, `TreeMaxRespawnMinutes`) and capacities (`OreMinCapacity`, `OreMaxCapacity`, `TreeMinCapacity`, `TreeMaxCapacity`) with in-game GM inspection command `[HarvestInfo`.
 
 ### Changed

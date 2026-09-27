@@ -213,6 +213,7 @@ namespace Server.Custom
             pack.DropItem(new FestersSkinningKnife());
             pack.DropItem(new FestersFishingPole());
             pack.DropItem(new FestersScythe());
+            pack.DropItem(new SanctuaryTalisman());
 
             // 3. Add blessed full spellbook and blessed runebook (20 charges)
             Spellbook spellbook = new Spellbook
