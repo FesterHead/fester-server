@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- Added [HarvestConfig.cs](servuo/custom-scripts/FesterUO/HarvestConfig.cs) and new settings in [Harvest.cfg](servuo/Config/FesterUO/Harvest.cfg) to dynamically configure resource bank respawn times (`OreMinRespawnMinutes`, `OreMaxRespawnMinutes`, `TreeMinRespawnMinutes`, `TreeMaxRespawnMinutes`) and capacities (`OreMinCapacity`, `OreMaxCapacity`, `TreeMinCapacity`, `TreeMaxCapacity`) with in-game GM inspection command `[HarvestInfo`.
+
 ### Changed
 - Enhanced harvest notifications for `FestersPickaxe` and `FestersHatchet` in [CustomAutoTools.cs](servuo/custom-scripts/FesterUO/CustomAutoTools.cs) to state the specific ore type smelted (e.g., Iron, Dull Copper) and wood type milled (e.g., Oak boards), colored according to each resource's native hue (falling back to standard green for unhued resources), while streamlining message phrasing.
 
