@@ -30,6 +30,8 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **Rating Poster Database** | `rpdb-folders`         | 8750                | Fetches ratings and posters for media            |
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
 | **ServUO**                 | `servuo`               | 2593                | Ultima Online emulator server                    |
+| **Vaultwarden**            | `vaultwarden`          | –                   | Self-hosted Bitwarden-compatible password server |
+| **Vaultwarden Backup**     | `vaultwarden-backup`   | –                   | Automated encrypted backup to Google Drive       |
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.
 

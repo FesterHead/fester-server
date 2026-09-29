@@ -55,7 +55,9 @@ services=("bazarr" \
           "sonarr" \
           "swag" \
           "transmission-openvpn" \
-          "transmission-rush")
+          "transmission-rush" \
+          "vaultwarden" \
+          "vaultwarden-backup")
 
 # Check command line argument
 if [[ "$1" == "all" ]]; then
