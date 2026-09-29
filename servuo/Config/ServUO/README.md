@@ -20,5 +20,5 @@ This directory (`servuo/Config/ServUO/`) contains the base ServUO platform confi
 | [`PlayerCaps.cfg`](PlayerCaps.cfg) | `PlayerCaps` | Total stat cap (450), total skill cap (1200.0%), anti-macro checks, and 5-minute stat gain timer. |
 | [`Server.cfg`](Server.cfg) | `Server` | Shard name `FesterUO`, port `2593`, and Docker host LAN routing (`PrivateAddress=192.168.86.48`). |
 | [`TreasureMaps.cfg`](TreasureMaps.cfg) | `TreasureMaps` | Enables modern treasure map chest system and lowers chest reset timer to 7 days. |
-| [`Vendors.cfg`](Vendors.cfg) | `Vendors` | Sets NPC restock delay to 15 minutes and configures Powder of Fortifying vendor stock. |
+| [`Vendors.cfg`](Vendors.cfg) | `Vendors` | Sets NPC restock delay to 15 minutes, configures 640 commodity/reagent stock, disables restock decay, and configures Powder of Fortifying. |
 | [`VetRewards.cfg`](VetRewards.cfg) | `VetRewards` | Sets reward intervals to 30 days per tier and locks veteran skill cap bonuses to preserve caps. |
