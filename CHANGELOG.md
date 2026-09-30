@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-30
+
 ### Added
 - Added `vaultwarden` and `vaultwarden-backup` services to [docker-compose.yaml](docker-compose.yaml) providing self-hosted Bitwarden-compatible password management and automated 7-Zip encrypted backups to local NAS storage (`${DATA_DIR}/vaultwarden`) via rclone and supercronic, with healthchecks, DNS resolution, and parameterized domain configuration (`VW_URL`) and backup passphrase (`VW_BACKUP_ZIP_PW`) in [.env](.env) and [.env-template](.env-template).
 - Added `vaultwarden` and `vaultwarden-backup` to [update.sh](update.sh) and [README.md](README.md), including instructions for on-demand manual backup execution.
