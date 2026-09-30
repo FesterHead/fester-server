@@ -611,48 +611,6 @@ services:
       start_period: 60s
       timeout: 10s
 
-  servuo:
-    container_name: servuo
-    build:
-      context: ./servuo
-      dockerfile: Dockerfile
-    image: servuo:latest
-    user: "${PUID}:${PGID}"
-    restart: unless-stopped
-    stdin_open: true
-    tty: true
-    depends_on:
-      - "diun"
-      - "container-mon"
-    labels:
-      - "containermon.enable=true"
-      - "diun.enable=false"
-    ports:
-      - "${PORT_SERVUO}:2593"
-      - "${PORT_SERVUO}:2593/udp"
-    dns:
-      - "${DNS_PRIMARY}"
-      - "${DNS_SECONDARY}"
-    volumes:
-      - "${SERVICE_DIR}/servuo/Client:/server/Client:ro"
-      - "${SERVICE_DIR}/servuo/Saves:/server/Saves"
-      - "${SERVICE_DIR}/servuo/Logs:/server/Logs"
-      - "${SERVICE_DIR}/servuo/custom-scripts:/server/Scripts/Custom"
-      - "${SERVICE_DIR}/servuo/Config:/server/Config"
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "pidof mono || pidof dotnet || exit 1" ]
-      interval: 60s
-      retries: 5
-      start_period: 60s
-      timeout: 10s
-    environment:
-      - "PGID=${PGID}"
-      - "PUID=${PUID}"
-      - "TZ=${TZ}"
-      - "UMASK=${UMASK}"
-      - "DOTNET_CLI_HOME=/server/.dotnet"
-      - "HOME=/server"
-
   vaultwarden:
     container_name: vaultwarden
     image: vaultwarden/server:latest
@@ -683,6 +641,7 @@ services:
   vaultwarden-backup:
     container_name: vaultwarden-backup
     image: ttionya/vaultwarden-backup:latest
+    user: "${PUID}:${PGID}"
     restart: unless-stopped
     depends_on:
       - "diun"
@@ -697,6 +656,7 @@ services:
     volumes:
       - "${SERVICE_DIR}/vaultwarden/data:/bitwarden/data:ro"
       - "${SERVICE_DIR}/vaultwarden/rclone:/config:rw"
+      - "${DATA_DIR}/vaultwarden:/backups:rw"
     healthcheck:
       test: [ "CMD", "sh", "-c", "pgrep supercronic || exit 1" ]
       interval: 60s
@@ -704,8 +664,9 @@ services:
       start_period: 60s
       timeout: 10s
     environment:
-      - "RCLONE_REMOTE_NAME=gdrive"
-      - "RCLONE_REMOTE_DIR=/Backups/Vaultwarden"
+      - "HOME=/tmp"
+      - "RCLONE_REMOTE_NAME=nas"
+      - "RCLONE_REMOTE_DIR=/backups"
       - "CRON=0 3 * * *"
       - "ZIP_ENABLE=TRUE"
       - "ZIP_TYPE=7z"
