@@ -29,7 +29,8 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **SWAG**                   | `swag`                 | 80, 81, 443         | Nginx reverse proxy with Let's Encrypt           |
 | **Rating Poster Database** | `rpdb-folders`         | 8750                | Fetches ratings and posters for media            |
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
-| **ServUO**                 | `servuo`               | 2593                | Ultima Online emulator server                    |
+| **Vaultwarden**            | `vaultwarden`          | –                   | Self-hosted Bitwarden-compatible password server |
+| **Vaultwarden Backup**     | `vaultwarden-backup`   | –                   | Automated encrypted backup to local NAS storage  |
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.
 
@@ -147,6 +148,14 @@ Then verify the service is using the VPN:
 
 ```bash
 docker exec <service-name> curl -s https://ipinfo.io/json
+```
+
+### Manually trigger Vaultwarden backup
+
+Trigger an immediate on-demand encrypted backup of Vaultwarden to the local NAS mount:
+
+```bash
+docker exec vaultwarden-backup bash /app/backup.sh
 ```
 
 ## Update Script

@@ -32,6 +32,7 @@ services:
       - "DIUN_PROVIDERS_DOCKER=true"
       - "DIUN_NOTIF_SLACK_WEBHOOKURL=https://hooks.slack.com/services/${SLACK_HOOK}"
       - "DIUN_NOTIF_SLACK_RENDERFIELDS=true"
+
   container-mon:
     container_name: container-mon
     image: ghcr.io/rafhaanshah/container-mon:latest
@@ -63,6 +64,7 @@ services:
       - "CONTAINERMON_NOTIFY_HEALTHY=true"
       - "CONTAINERMON_CHECK_STOPPED=false"
       - "CONTAINERMON_NOTIFICATION_URL=slack://hook:${SLACK_HOOK}@webhook?BotName=containermon"
+
   transmission-openvpn:
     container_name: transmission-openvpn
     image: haugene/transmission-openvpn:4.1
@@ -120,6 +122,7 @@ services:
       - "TRANSMISSION_SCRAPE_PAUSED_TORRENTS_ENABLED=false"
       - "TRANSMISSION_MAX_PEERS_GLOBAL=500"
       - "TRANSMISSION_RPC_PORT=9099"
+
   transmission-rush:
     container_name: transmission-rush
     image: lscr.io/linuxserver/transmission:4.0.5
@@ -151,6 +154,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   sabnzbd:
     container_name: sabnzbd
     image: lscr.io/linuxserver/sabnzbd:latest
@@ -181,6 +185,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   flaresolverr:
     container_name: flaresolverr
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -210,6 +215,7 @@ services:
       - "LOG_LEVEL=info"
       - "LOG_HTML=false"
       - "CAPTCHA_SOLVER=none"
+
   prowlarr:
     container_name: prowlarr
     image: lscr.io/linuxserver/prowlarr:latest
@@ -238,6 +244,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   emby:
     container_name: emby
     image: lscr.io/linuxserver/emby:latest
@@ -272,6 +279,7 @@ services:
       - "GIDLIST=${EMBY_GIDLIST}"
     devices:
       - "/dev/dri:/dev/dri"
+
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -301,6 +309,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   radarr:
     container_name: radarr
     image: lscr.io/linuxserver/radarr:latest
@@ -330,6 +339,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   sonarr:
     container_name: sonarr
     image: lscr.io/linuxserver/sonarr:latest
@@ -358,6 +368,7 @@ services:
       - "PGID=${PGID}"
       - "PUID=${PUID}"
       - "TZ=${TZ}"
+
   seerr:
     container_name: seerr
     image: ghcr.io/seerr-team/seerr:latest
@@ -386,6 +397,7 @@ services:
     environment:
       - "LOG_LEVEL=info"
       - "TZ=${TZ}"
+
   crosswatch:
     container_name: crosswatch
     image: ghcr.io/cenodude/crosswatch:latest
@@ -416,6 +428,7 @@ services:
       - "PUID=${PUID}"
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
+
   homepage:
     container_name: homepage
     image: ghcr.io/gethomepage/homepage:latest
@@ -448,6 +461,7 @@ services:
       - "TZ=${TZ}"
       - "UMASK=${UMASK}"
       - "HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS}"
+
   dockerproxy:
     container_name: dockerproxy
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
@@ -473,6 +487,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+
   duckdns:
     container_name: duckdns
     image: lscr.io/linuxserver/duckdns:latest
@@ -502,6 +517,7 @@ services:
       - "SUBDOMAINS=${DUCKDNS_SUBDOMAINS}"
       - "TOKEN=${DUCKDNS_TOKEN}"
       - "LOG_FILE=false"
+
   swag:
     container_name: swag
     image: lscr.io/linuxserver/swag:latest
@@ -542,6 +558,7 @@ services:
       - "EMAIL=${SWAG_EMAIL}"
       - "EXTRA_DOMAINS=${SWAG_EXTRA_DOMAINS}"
       - "DOCKER_MODS=linuxserver/mods:swag-dashboard"
+
   rpdb-folders:
     container_name: rpdb-folders
     image: jaruba/rpdb-folders-docker:latest
@@ -567,6 +584,7 @@ services:
       retries: 5
       start_period: 60s
       timeout: 10s
+
   dockhand:
     container_name: dockhand
     image: fnsys/dockhand:latest
@@ -592,45 +610,66 @@ services:
       retries: 5
       start_period: 60s
       timeout: 10s
-  servuo:
-    container_name: servuo
-    build:
-      context: ./servuo
-      dockerfile: Dockerfile
-    image: servuo:latest
-    user: "${PUID}:${PGID}"
+
+  vaultwarden:
+    container_name: vaultwarden
+    image: vaultwarden/server:latest
     restart: unless-stopped
-    stdin_open: true
-    tty: true
     depends_on:
       - "diun"
       - "container-mon"
     labels:
       - "containermon.enable=true"
-      - "diun.enable=false"
-    ports:
-      - "${PORT_SERVUO}:2593"
-      - "${PORT_SERVUO}:2593/udp"
+      - "diun.enable=true"
     dns:
       - "${DNS_PRIMARY}"
       - "${DNS_SECONDARY}"
     volumes:
-      - "${SERVICE_DIR}/servuo/Client:/server/Client:ro"
-      - "${SERVICE_DIR}/servuo/Saves:/server/Saves"
-      - "${SERVICE_DIR}/servuo/Logs:/server/Logs"
-      - "${SERVICE_DIR}/servuo/custom-scripts:/server/Scripts/Custom"
-      - "${SERVICE_DIR}/servuo/Config:/server/Config"
+      - "${SERVICE_DIR}/vaultwarden/data:/data"
     healthcheck:
-      test: [ "CMD", "sh", "-c", "pidof mono || pidof dotnet || exit 1" ]
+      test: curl --fail http://localhost:80/alive || exit 1
       interval: 60s
       retries: 5
       start_period: 60s
       timeout: 10s
     environment:
-      - "PGID=${PGID}"
-      - "PUID=${PUID}"
-      - "TZ=${TZ}"
-      - "UMASK=${UMASK}"
-      - "DOTNET_CLI_HOME=/server/.dotnet"
-      - "HOME=/server"
+      - "WEBSOCKET_ENABLED=true"
+      - "SIGNUPS_ALLOWED=true"
+      - "INVITATIONS_ALLOWED=true"
+      - "DOMAIN=https://${VW_URL}"
 
+  vaultwarden-backup:
+    container_name: vaultwarden-backup
+    image: ttionya/vaultwarden-backup:latest
+    user: "${PUID}:${PGID}"
+    restart: unless-stopped
+    depends_on:
+      - "diun"
+      - "container-mon"
+      - "vaultwarden"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=true"
+    dns:
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
+    volumes:
+      - "${SERVICE_DIR}/vaultwarden/data:/bitwarden/data:ro"
+      - "${SERVICE_DIR}/vaultwarden/rclone:/config:rw"
+      - "${DATA_DIR}/vaultwarden:/backups:rw"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "pgrep supercronic || exit 1" ]
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "HOME=/tmp"
+      - "RCLONE_REMOTE_NAME=nas"
+      - "RCLONE_REMOTE_DIR=/backups"
+      - "CRON=0 3 * * *"
+      - "ZIP_ENABLE=TRUE"
+      - "ZIP_TYPE=7z"
+      - "ZIP_PASSWORD=${VW_BACKUP_ZIP_PW}"
+      - "BACKUP_KEEP_DAYS=30"
+      - "TIMEZONE=${TZ}"
