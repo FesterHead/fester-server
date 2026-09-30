@@ -69,6 +69,9 @@ A helper script is provided in `servuo/manage-patches.sh` to maintain and test p
 | [`24-tmap-book-vendor.patch`](24-tmap-book-vendor.patch) | `Scripts/VendorInfo/SBMapmaker.cs` | Economy & Exploration | Adds Treasure Map and SOS books (`TMapBook`, 1,000 gp via `TMapBookCost`) and Treasure Map Instant Transporters (`TreasureMapDecoder`, 10,000 gp via `TreasureMapDecoderCost`) to NPC Mapmaker inventories parameterized via `servuo/Config/ServUO/Vendors.cfg`. |
 | [`25-sos-decoder-vendor.patch`](25-sos-decoder-vendor.patch) | `Scripts/VendorInfo/SBFisherman.cs` | Economy & Seafaring | Adds SOS Instant Transporters (`SOSDecoder`) to NPC Fisherman inventories parameterized via `servuo/Config/ServUO/Vendors.cfg` (`SOSDecoderCost=10000`). |
 | [`26-sanctuary-ward.patch`](26-sanctuary-ward.patch) | `Scripts/Mobiles/Normal/BaseCreature.cs` | Combat & Creature AI | Hooks `BaseCreature.IsEnemy` to honor `SanctuaryWard.IsProtected`, suppressing hostile creature aggro and targeting against players and their pets while outdoors in the wild across all facets. |
+| [`27-hunter-bestiary.patch`](27-hunter-bestiary.patch) | `Scripts/Mobiles/Normal/BaseCreature.cs` | Combat & Progression | Hooks `BaseCreature.OnBeforeDamage` with `OnCreatureDamageHook` delegate to apply +20% damage mastery bonuses from unlocked Hunter's Bestiary treatises. |
+| [`28-dyes-target-handler.patch`](28-dyes-target-handler.patch) | `Scripts/Items/Internal/ItemInterfaces.cs`<br>`Scripts/Items/Tools/Dyes.cs` | Custom Items & Dyeing | Defines `IDyesTargetHandler` and hooks `Dyes.cs` to route dye actions into custom dye tubs (such as `RunebookCustomDyeTub` and `SpellbookCustomDyeTub`) before standard hue pickers. |
+| [`29-loot-filter.patch`](29-loot-filter.patch) | `Scripts/Mobiles/PlayerMobile.cs` | Custom Items & Visibility | Adds `LootFilterCheck` delegate to `PlayerMobile.CanSee(Item item)` to evaluate player-side ARPG loot visibility rules on ground and corpse items. |
 
 
 ---

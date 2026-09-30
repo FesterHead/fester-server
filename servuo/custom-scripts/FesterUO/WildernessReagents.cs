@@ -22,6 +22,21 @@ namespace FesterUO
         public static bool SpawnTrammel { get; set; }
         public static bool SpawnFelucca { get; set; }
 
+        // Core active wilderness zones across Britannia mainland & major inhabited islands
+        private static readonly Rectangle2D[] SpawnZones = new Rectangle2D[]
+        {
+            // Mainland Britannia: Yew, Britain, Minoc, Vesper, Cove, Trinsic, mountains, forests & swamps
+            new Rectangle2D(400, 400, 3100, 2600),
+            // Moonglow Island
+            new Rectangle2D(4300, 800, 500, 800),
+            // Jhelom Islands
+            new Rectangle2D(1200, 3600, 500, 500),
+            // Magincia Island
+            new Rectangle2D(3500, 2000, 400, 400),
+            // Skara Brae Island
+            new Rectangle2D(550, 2100, 250, 300),
+        };
+
         private static readonly List<Item> m_SpawnedReagents = new List<Item>();
         private static Timer m_Timer;
 
@@ -44,7 +59,7 @@ namespace FesterUO
         public static void LoadConfig()
         {
             Enabled = Config.Get("Reagents.Enabled", true);
-            MaxGroundReagents = Config.Get("Reagents.MaxGroundReagents", 500);
+            MaxGroundReagents = Config.Get("Reagents.MaxGroundReagents", 1500);
             RespawnIntervalMinutes = Config.Get("Reagents.RespawnIntervalMinutes", 15);
             MinSpawnAmount = Config.Get("Reagents.MinSpawnAmount", 1);
             MaxSpawnAmount = Config.Get("Reagents.MaxSpawnAmount", 3);
@@ -89,6 +104,7 @@ namespace FesterUO
                         // Only retain if it's still a valid item on the ground (no parent container)
                         if (item != null && !item.Deleted && item.Parent == null)
                         {
+                            item.HonestyItem = true; // Keep decay suppressed while in the wild
                             m_SpawnedReagents.Add(item);
                         }
                     }
@@ -107,8 +123,19 @@ namespace FesterUO
 
         public static void PruneList()
         {
-            // Remove items that have been picked up into containers, deleted, or despawned
-            m_SpawnedReagents.RemoveAll(item => item == null || item.Deleted || item.Parent != null);
+            for (int i = m_SpawnedReagents.Count - 1; i >= 0; i--)
+            {
+                Item item = m_SpawnedReagents[i];
+                if (item == null || item.Deleted)
+                {
+                    m_SpawnedReagents.RemoveAt(i);
+                }
+                else if (item.Parent != null)
+                {
+                    item.HonestyItem = false; // Reset decay flag once safely in player possession
+                    m_SpawnedReagents.RemoveAt(i);
+                }
+            }
         }
 
         public static void Replenish()
@@ -122,7 +149,7 @@ namespace FesterUO
             if (needed <= 0)
                 return;
 
-            int attempts = needed * 4;
+            int attempts = needed * 6;
             int spawnedThisCycle = 0;
 
             for (int i = 0; i < attempts && spawnedThisCycle < needed; i++)
@@ -131,14 +158,16 @@ namespace FesterUO
                 if (map == null)
                     continue;
 
-                int x = Utility.RandomMinMax(0, map.MapID <= 1 ? 5119 : map.Width);
-                int y = Utility.RandomMinMax(0, map.MapID <= 1 ? 4095 : map.Height);
+                Rectangle2D zone = SpawnZones[Utility.Random(SpawnZones.Length)];
+                int x = Utility.RandomMinMax(zone.X, zone.X + zone.Width);
+                int y = Utility.RandomMinMax(zone.Y, zone.Y + zone.Height);
 
                 if (TryFindSpawnLocation(map, x, y, out Point3D loc, out Type reagentType))
                 {
                     Item item = (Item)Activator.CreateInstance(reagentType);
                     item.Amount = Utility.RandomMinMax(Math.Max(1, MinSpawnAmount), Math.Max(1, MaxSpawnAmount));
                     item.Movable = true;
+                    item.HonestyItem = true; // Prevents natural world item decay while lying on the ground
                     item.MoveToWorld(loc, map);
 
                     m_SpawnedReagents.Add(item);
@@ -166,24 +195,20 @@ namespace FesterUO
             loc = Point3D.Zero;
             reagentType = null;
 
-            if (map == null)
+            if (map == null || map == Map.Internal)
+                return false;
+
+            if (x < 0 || y < 0 || x >= map.Width || y >= map.Height)
                 return false;
 
             LandTile lt = map.Tiles.GetLandTile(x, y);
             LandData ld = TileData.LandTable[lt.ID & TileData.MaxLandValue];
 
-            // Filter out impassable, roof, or deep water
-            if (lt.Ignored || (ld.Flags & TileFlag.Impassable) != 0 || (ld.Flags & TileFlag.Roof) != 0)
+            // Filter out impassable, roof, or wet/water tiles
+            if (lt.Ignored || (ld.Flags & TileFlag.Impassable) != 0 || (ld.Flags & TileFlag.Roof) != 0 || (ld.Flags & TileFlag.Wet) != 0)
                 return false;
 
-            // Roads check - keep wilderness reagents off main roads
-            for (int i = 0; i < HousePlacement.RoadIDs.Length; i += 2)
-            {
-                if (lt.ID >= HousePlacement.RoadIDs[i] && lt.ID <= HousePlacement.RoadIDs[i + 1])
-                    return false;
-            }
-
-            int z = lt.Z;
+            int z = map.GetAverageZ(x, y);
             Point3D p = new Point3D(x, y, z);
 
             // Region checks - no spawning inside towns, dungeons, house plots, or champion spawns
@@ -207,8 +232,8 @@ namespace FesterUO
                 }
             }
 
-            // CanFit check to ensure an item can sit at this location
-            if (!map.CanFit(x, y, z, 16, false, false, true))
+            // CanFit check to ensure an item can sit at this ground location
+            if (!map.CanFit(x, y, z, 1, false, false, false))
                 return false;
 
             loc = p;
@@ -271,17 +296,124 @@ namespace FesterUO
 
             if (e.Length == 0)
             {
+                int tramCount = 0;
+                int felCount = 0;
+                for (int i = 0; i < m_SpawnedReagents.Count; i++)
+                {
+                    if (m_SpawnedReagents[i] != null && !m_SpawnedReagents[i].Deleted)
+                    {
+                        if (m_SpawnedReagents[i].Map == Map.Trammel) tramCount++;
+                        else if (m_SpawnedReagents[i].Map == Map.Felucca) felCount++;
+                    }
+                }
+
                 m.SendMessage(0x35, "=== Wilderness Reagents Status ===");
-                m.SendMessage(0x44, "Enabled: {0} | Active on Ground: {1} / {2}", Enabled, m_SpawnedReagents.Count, MaxGroundReagents);
-                m.SendMessage(0x44, "Respawn Interval: {0}m | Yield per Spawn: {1}-{2}", RespawnIntervalMinutes, MinSpawnAmount, MaxSpawnAmount);
-                m.SendMessage(0x44, "Facets: Trammel ({0}), Felucca ({1})", SpawnTrammel ? "Yes" : "No", SpawnFelucca ? "Yes" : "No");
-                m.SendMessage(0x35, "Commands: [WildReagents respawn | [WildReagents clear | [WildReagents reload");
+                m.SendMessage(0x44, "Enabled: {0} | Active on Ground: {1} / {2} (Trammel: {3}, Felucca: {4})",
+                    Enabled, m_SpawnedReagents.Count, MaxGroundReagents, tramCount, felCount);
+                m.SendMessage(0x44, "Respawn Interval: {0}m | Yield per Spawn: {1}-{2}",
+                    RespawnIntervalMinutes, MinSpawnAmount, MaxSpawnAmount);
+                m.SendMessage(0x44, "Facets: Trammel ({0}), Felucca ({1})",
+                    SpawnTrammel ? "Yes" : "No", SpawnFelucca ? "Yes" : "No");
+                m.SendMessage(0x35, "Commands: [WildReagents [respawn | clear | reload | find | goto | near]");
                 return;
             }
 
             string sub = e.GetString(0).ToLowerInvariant();
             switch (sub)
             {
+                case "find":
+                    {
+                        Item nearest = null;
+                        double bestDist = double.MaxValue;
+                        for (int i = 0; i < m_SpawnedReagents.Count; i++)
+                        {
+                            Item item = m_SpawnedReagents[i];
+                            if (item != null && !item.Deleted && item.Map == m.Map)
+                            {
+                                double dist = m.GetDistanceToSqrt(item);
+                                if (dist < bestDist)
+                                {
+                                    bestDist = dist;
+                                    nearest = item;
+                                }
+                            }
+                        }
+
+                        if (nearest != null)
+                        {
+                            m.SendMessage(0x44, "Nearest {0}: {1} at {2} ({3} tiles away).", nearest.GetType().Name, nearest.Amount, nearest.Location, (int)bestDist);
+                        }
+                        else
+                        {
+                            m.SendMessage(0x22, "No spawned reagents found on your facet.");
+                        }
+                        break;
+                    }
+                case "goto":
+                    {
+                        Item target = null;
+                        if (e.Length > 1)
+                        {
+                            string filter = e.GetString(1).ToLowerInvariant();
+                            for (int i = 0; i < m_SpawnedReagents.Count; i++)
+                            {
+                                Item item = m_SpawnedReagents[i];
+                                if (item != null && !item.Deleted && item.Map == m.Map && item.GetType().Name.ToLowerInvariant().Contains(filter))
+                                {
+                                    target = item;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Pick random on same facet
+                            List<Item> sameFacet = new List<Item>();
+                            for (int i = 0; i < m_SpawnedReagents.Count; i++)
+                            {
+                                Item item = m_SpawnedReagents[i];
+                                if (item != null && !item.Deleted && item.Map == m.Map)
+                                {
+                                    sameFacet.Add(item);
+                                }
+                            }
+
+                            if (sameFacet.Count > 0)
+                            {
+                                target = sameFacet[Utility.Random(sameFacet.Count)];
+                            }
+                        }
+
+                        if (target != null)
+                        {
+                            m.MoveToWorld(target.Location, target.Map);
+                            m.SendMessage(0x44, "Teleported to {0} ({1}) at {2}.", target.GetType().Name, target.Amount, target.Location);
+                        }
+                        else
+                        {
+                            m.SendMessage(0x22, "No matching reagent found on your facet.");
+                        }
+                        break;
+                    }
+                case "near":
+                    {
+                        int radius = 50;
+                        if (e.Length > 1)
+                            int.TryParse(e.GetString(1), out radius);
+
+                        int found = 0;
+                        for (int i = 0; i < m_SpawnedReagents.Count; i++)
+                        {
+                            Item item = m_SpawnedReagents[i];
+                            if (item != null && !item.Deleted && item.Map == m.Map && m.InRange(item.Location, radius))
+                            {
+                                m.SendMessage(0x44, "- {0} ({1}) at {2} (Dist: {3})", item.GetType().Name, item.Amount, item.Location, (int)m.GetDistanceToSqrt(item));
+                                found++;
+                            }
+                        }
+                        m.SendMessage(0x35, "Total reagents within {0} tiles: {1}", radius, found);
+                        break;
+                    }
                 case "respawn":
                     {
                         int before = m_SpawnedReagents.Count;
@@ -307,12 +439,12 @@ namespace FesterUO
                 case "reload":
                     {
                         LoadConfig();
-                        m.SendMessage(0x44, "Reloaded Reagents.cfg configuration.");
+                        m.SendMessage(0x44, "Reloaded Reagents.cfg configuration. (MaxGroundReagents: {0})", MaxGroundReagents);
                         break;
                     }
                 default:
                     {
-                        m.SendMessage("Usage: [WildReagents [respawn | clear | reload]");
+                        m.SendMessage("Usage: [WildReagents [respawn | clear | reload | find | goto | near]");
                         break;
                     }
             }

@@ -1,0 +1,27 @@
+diff --git a/Scripts/Mobiles/PlayerMobile.cs b/Scripts/Mobiles/PlayerMobile.cs
+index 926020c..8c91728 100644
+--- a/Scripts/Mobiles/PlayerMobile.cs
++++ b/Scripts/Mobiles/PlayerMobile.cs
+@@ -5212,6 +5212,8 @@ namespace Server.Mobiles
+ 			return base.CanSee(m);
+ 		}
+ 
++		public static Func<Mobile, Item, bool> LootFilterCheck { get; set; }
++
+ 		public override bool CanSee(Item item)
+ 		{
+             if (item is IConditionalVisibility && !((IConditionalVisibility)item).CanBeSeenBy(this))
+@@ -5231,6 +5233,13 @@ namespace Server.Mobiles
+                 }
+             }
+ 
++			// ARPG Loot Filter - applies to all levels if enabled
++			bool isLoot = item.Parent == null || item.RootParent is Corpse;
++			if (isLoot && LootFilterCheck != null && !LootFilterCheck(this, item))
++			{
++				return false;
++			}
++
+ 			return base.CanSee(item);
+ 		}
+ 

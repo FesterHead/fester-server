@@ -1,0 +1,26 @@
+==============================================
+ARPG LOOT FILTER - SYSTEM INFORMATION
+==============================================
+
+Description:
+------------
+This script provides an advanced, Diablo-style Loot Filter for Ultima Online. It allows players directly via a user-friendly Gump to choose exactly which items they want to see on the ground or within corpses, filtering out garbage loot and saving them time.
+
+Features:
+---------
+- Over 87 filterable properties including AOS Attributes, Hit effects, Resists, and Damage types.
+- A beautiful, paginated UI categorizing all properties.
+- Dynamic "Zebra-Striping" layout for readability.
+- Total control: Toggles (On/Off) and minimum threshold values for each individual property.
+- "Safe" filtering: The system ONLY hides natural equipment (Weapons, Armor, Clothing, Jewelry). It will NEVER accidentally hide Gold, Keys, Quest Items, Reagents, or Potions.
+- Backpack/Bank safety: The system guarantees that items within a player's backpack or bank box are NEVER hidden from them, regardless of their strict filter settings.
+- Global Toggle: A master switch to turn the entire filter on or off without losing the property configurations.
+- Persistent Saving: Uses XmlAttachment (Version 2 structure) to save the exact filter configurations for each individual character permanently.
+
+Commands:
+---------
+[LootFilter - Opens the main interface for configuring the loot filter. Only accessible by Players.
+
+Creator Notes:
+--------------
+Designed for modern UO action-RPG shards aiming for a cleaner visual experience while grinding heavy-loot areas. No core modifications are required beyond a simple hook in PlayerMobile.cs.

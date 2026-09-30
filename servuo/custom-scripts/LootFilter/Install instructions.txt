@@ -1,0 +1,42 @@
+==============================================
+ARPG LOOT FILTER - INSTALLATION INSTRUCTIONS
+==============================================
+
+This system requires XmlSpawner (specifically XmlAttachment) which is standard in most ServUO and RunUO distributions.
+
+Step 1: Place Files
+-------------------
+Place this entire folder (or at least the 5 .cs files) inside your `Scripts/Customs` folder.
+- LootFilterSettings.cs
+- LootFilterAttachment.cs
+- LootFilterController.cs
+- LootFilterGump.cs
+- LootFilterInfoGump.cs
+
+Step 2: Modify PlayerMobile.cs
+------------------------------
+To make the filter actually hide items from the players, you need to hook it into the Core visibility logic.
+
+Open your `Scripts/Mobiles/PlayerMobile.cs` file.
+
+1. At the very top of the file, add this using directive:
+   using Server.Engines.LootFilter;
+
+2. Search for the method: 
+   public override bool CanSee(Item item)
+
+3. Inside that method, look for the line that says:
+   return base.CanSee(item);
+
+4. JUST ABOVE that line, paste the following code block:
+
+   // ARPG Loot Filter - applies to all levels if enabled
+   bool isLoot = item.Parent == null || item.RootParent is Corpse;
+   if (isLoot && !LootFilterController.PassesFilter(this, item))
+   {
+       return false;
+   }
+
+Step 3: Compile
+---------------
+Restart your server to compile the scripts. That's it! Players can now type [LootFilter in-game to access the system.
