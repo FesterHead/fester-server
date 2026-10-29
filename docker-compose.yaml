@@ -673,3 +673,70 @@ services:
       - "ZIP_PASSWORD=${VW_BACKUP_ZIP_PW}"
       - "BACKUP_KEEP_DAYS=30"
       - "TIMEZONE=${TZ}"
+
+  forgejo:
+    container_name: forgejo
+    image: codeberg.org/forgejo/forgejo:15
+    restart: unless-stopped
+    depends_on:
+      - "diun"
+      - "container-mon"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=true"
+    ports:
+      - "${PORT_FORGEJO_SSH}:22"
+    dns:
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
+    volumes:
+      - "${SERVICE_DIR}/forgejo:/data"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    healthcheck:
+      test: curl --fail http://localhost:3000/api/healthz || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "USER_UID=${PUID}"
+      - "USER_GID=${PGID}"
+      - "TZ=${TZ}"
+
+  forgejo-runner:
+    container_name: forgejo-runner
+    image: data.forgejo.org/forgejo/runner:13
+    user: "${PUID}:${DOCKER_GID}"
+    restart: unless-stopped
+    depends_on:
+      - "forgejo"
+      - "diun"
+      - "container-mon"
+    labels:
+      - "containermon.enable=true"
+      - "diun.enable=true"
+    command:
+      - "sh"
+      - "-c"
+      - "if [ ! -f .runner ]; then forgejo-runner register --no-interactive --instance \"$${FORGEJO_INSTANCE_URL}\" --name \"$${FORGEJO_RUNNER_NAME}\" --token \"$${FORGEJO_RUNNER_REGISTRATION_TOKEN}\" --labels \"$${FORGEJO_RUNNER_LABELS}\"; fi && exec forgejo-runner daemon"
+    dns:
+      - "${DNS_PRIMARY}"
+      - "${DNS_SECONDARY}"
+    volumes:
+      - "${SERVICE_DIR}/forgejo-runner:/data"
+      - "${DOCKER_SOCK}:/var/run/docker.sock"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "pidof forgejo-runner || exit 1" ]
+      interval: 60s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    environment:
+      - "USER_UID=${PUID}"
+      - "USER_GID=${PGID}"
+      - "TZ=${TZ}"
+      - "FORGEJO_INSTANCE_URL=http://forgejo:3000"
+      - "FORGEJO_RUNNER_REGISTRATION_TOKEN=${FORGEJO_RUNNER_TOKEN}"
+      - "FORGEJO_RUNNER_NAME=fester-runner-01"
+      - "FORGEJO_RUNNER_LABELS=docker:docker://ghcr.io/catthehacker/ubuntu:act-latest,ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-latest"

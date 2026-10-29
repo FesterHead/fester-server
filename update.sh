@@ -37,6 +37,8 @@ services=("bazarr" \
           "duckdns" \
           "emby" \
           "flaresolverr" \
+          "forgejo" \
+          "forgejo-runner" \
           "homepage" \
           "prowlarr" \
           "radarr" \
