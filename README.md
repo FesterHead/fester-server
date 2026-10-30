@@ -31,7 +31,7 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
 | **Vaultwarden**            | `vaultwarden`          | –                   | Self-hosted Bitwarden-compatible password server |
 | **Vaultwarden Backup**     | `vaultwarden-backup`   | –                   | Automated encrypted backup to local NAS storage  |
-| **Forgejo**                | `forgejo`              | 2222 (SSH)          | Self-hosted lightweight Git service              |
+| **Forgejo**                | `forgejo`              | 3000, 2222 (SSH)    | Self-hosted lightweight Git service              |
 | **Forgejo Runner**         | `forgejo-runner`       | –                   | CI/CD runner for Forgejo Actions                 |
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.

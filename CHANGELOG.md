@@ -7,8 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
-- Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`) in [.env](.env) and [.env-template](.env-template).
-- Added `git` subdomain and `git.kunitzer.me` extra domain to SWAG configuration in [.env](.env) and [.env-template](.env-template), and configured `swag/nginx/proxy-confs/forgejo.subdomain.conf`.
+- Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_HTTP`, `PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`, `DOCKER_GID`) in [.env](.env) and [.env-template](.env-template).
 - Added `forgejo` and `forgejo-runner` to [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md).
 
 ## [1.4.0] - 2026-09-30

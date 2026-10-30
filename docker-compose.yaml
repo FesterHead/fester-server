@@ -685,6 +685,7 @@ services:
       - "containermon.enable=true"
       - "diun.enable=true"
     ports:
+      - "${PORT_FORGEJO_HTTP}:3000"
       - "${PORT_FORGEJO_SSH}:22"
     dns:
       - "${DNS_PRIMARY}"
