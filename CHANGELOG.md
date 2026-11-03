@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- Added persistent rotating file logging to `/app/data/logs/challenge-recorder.log` (host directory `challenge-recorder/data/logs/`) with Hawaii Standard Time (`HST`) formatting across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py), auditing HTTP requests, DisasterAWARE authentication attempts, riddle queries, puzzle completion rankings, winner minting, and database resets.
 - Added date-gated riddle unlocking endpoint (`/api/riddle`) to `challenge-recorder` supporting progressive daily challenge schedules and holding screens.
 - Added `challenge-recorder` FastAPI service to [docker-compose.yaml](docker-compose.yaml), [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md) with SWAG reverse-proxy routing (`/api/`) for DisasterAWARE Pro JWT verification, cryptographic challenge proof validation, SQLite leaderboard persistence, and a database reset utility ([challenge-recorder/reset.py](challenge-recorder/reset.py)).
 - Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_HTTP`, `PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`, `DOCKER_GID`) in [.env](.env) and [.env-template](.env-template).

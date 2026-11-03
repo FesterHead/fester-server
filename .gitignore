@@ -1,6 +1,10 @@
 # Ignore the secret file
 .env
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # Ignore all subfolders (the container data)
 # This assumes the folders in your screenshot are data volumes
 bazarr/

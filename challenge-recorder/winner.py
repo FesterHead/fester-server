@@ -15,18 +15,50 @@ Usage inside container:
 
 import hashlib
 import json
+import logging
 import os
 import secrets
 import sqlite3
 import sys
 from datetime import datetime, timedelta, timezone
+from logging.handlers import RotatingFileHandler
 
 import httpx
 
 DB_PATH = os.environ.get("DB_PATH", "/app/data/completions.db")
 CHALLENGES_CONFIG_PATH = os.environ.get("CHALLENGES_CONFIG_PATH", "/app/data/challenges.json")
+LOGS_DIR = os.environ.get("LOGS_DIR", "/app/data/logs")
+LOG_FILE = os.path.join(LOGS_DIR, "challenge-recorder.log")
 DRAND_LATEST_URL = "https://api.drand.sh/public/latest"
 HST_TZ = timezone(timedelta(hours=-10), name="HST")
+
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+
+class HSTFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=HST_TZ)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime("%Y-%m-%d %H:%M:%S HST")
+
+
+logger = logging.getLogger("challenge-recorder-winner")
+logger.setLevel(logging.INFO)
+
+if not logger.handlers:
+    _formatter = HSTFormatter(
+        fmt="[%(asctime)s] [%(levelname)s] %(message)s"
+    )
+    _file_handler = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=10 * 1024 * 1024,
+        backupCount=5,
+        encoding="utf-8",
+    )
+    _file_handler.setFormatter(_formatter)
+    _file_handler.setLevel(logging.INFO)
+    logger.addHandler(_file_handler)
 
 
 def sha256_hex(message: str) -> str:
@@ -128,6 +160,9 @@ def main():
             (maint_day,),
         ).fetchone()
         if existing is not None:
+            logger.info(
+                f"Winner query (already minted): day='{maint_day}', winner='{existing['username']}', rank=#{existing['winner_rank']}"
+            )
             print_winner_summary(existing, already_minted=True)
             return
 
@@ -143,6 +178,7 @@ def main():
 
         total = len(rows)
         if total == 0:
+            logger.warning(f"Winner minting aborted: no completions found for day='{maint_day}'")
             print(f"No completions recorded for maintenance day '{maint_day}' yet. Cannot mint a winner.")
             sys.exit(1)
 
@@ -209,6 +245,11 @@ def main():
             ),
         )
         conn.commit()
+
+        logger.info(
+            f"*** OFFICIAL WINNER MINTED ***: day='{maint_day}', winner='{winner_row['username']}', "
+            f"rank=#{winner_rank}/{total}, strategy='{strategy}', selection_hash='{selection_hash}'"
+        )
 
         saved = conn.execute(
             "SELECT * FROM winners WHERE maintenance_day = ?",

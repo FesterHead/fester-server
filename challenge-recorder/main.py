@@ -1,16 +1,18 @@
 import hashlib
 import html
 import json
+import logging
 import os
 import re
 import sqlite3
 from contextlib import asynccontextmanager, contextmanager
 from datetime import datetime, timedelta, timezone
+from logging.handlers import RotatingFileHandler
 from typing import Optional
 
 import httpx
 import jwt
-from fastapi import FastAPI, Header, HTTPException, Query, status
+from fastapi import FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from jwt import PyJWKClient
@@ -18,10 +20,46 @@ from pydantic import BaseModel, Field
 
 DB_PATH = os.environ.get("DB_PATH", "/app/data/completions.db")
 CHALLENGES_CONFIG_PATH = os.environ.get("CHALLENGES_CONFIG_PATH", "/app/data/challenges.json")
+LOGS_DIR = os.environ.get("LOGS_DIR", "/app/data/logs")
+LOG_FILE = os.path.join(LOGS_DIR, "challenge-recorder.log")
 DISASTERAWARE_LOGIN_URL = "https://disasteraware.pdc.org/jwt/v1/auth/login"
 DISASTERAWARE_VALIDATE_URL = "https://disasteraware.pdc.org/jwt/v1/auth/validate"
 DISASTERAWARE_JWKS_ISSUER = "https://disasteraware.pdc.org/jwt/jwks.json"
 HST_TZ = timezone(timedelta(hours=-10), name="HST")
+
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+
+class HSTFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=HST_TZ)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime("%Y-%m-%d %H:%M:%S HST")
+
+
+logger = logging.getLogger("challenge-recorder")
+logger.setLevel(logging.INFO)
+
+if not logger.handlers:
+    _formatter = HSTFormatter(
+        fmt="[%(asctime)s] [%(levelname)s] %(message)s"
+    )
+    _file_handler = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=50 * 1024 * 1024,
+        backupCount=10,
+        encoding="utf-8",
+    )
+    _file_handler.setFormatter(_formatter)
+    _file_handler.setLevel(logging.INFO)
+
+    _stream_handler = logging.StreamHandler()
+    _stream_handler.setFormatter(_formatter)
+    _stream_handler.setLevel(logging.INFO)
+
+    logger.addHandler(_file_handler)
+    logger.addHandler(_stream_handler)
 
 jwks_client = PyJWKClient(DISASTERAWARE_JWKS_ISSUER, cache_keys=True)
 
@@ -218,6 +256,31 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def request_logging_middleware(request: Request, call_next):
+    start_time = datetime.now()
+    client_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or request.headers.get("x-real-ip")
+        or (request.client.host if request.client else "unknown")
+    )
+    method = request.method
+    path = request.url.path
+    query = str(request.url.query)
+    query_str = f"?{query}" if query else ""
+
+    response = await call_next(request)
+    duration_ms = (datetime.now() - start_time).total_seconds() * 1000
+
+    if path != "/api/health":
+        logger.info(
+            f"{method} {path}{query_str} -> {response.status_code} ({duration_ms:.1f}ms) [client={client_ip}]"
+        )
+
+    return response
+
+
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -297,7 +360,14 @@ async def health():
 
 
 @app.post("/api/auth/login")
-async def proxy_disasteraware_login(payload: LoginRequest):
+async def proxy_disasteraware_login(payload: LoginRequest, request: Request):
+    client_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or request.headers.get("x-real-ip")
+        or (request.client.host if request.client else "unknown")
+    )
+    user_str = payload.username.strip().lower()
+    logger.info(f"Auth attempt for user='{user_str}' [client={client_ip}]")
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.post(
@@ -309,18 +379,21 @@ async def proxy_disasteraware_login(payload: LoginRequest):
                 },
             )
     except httpx.RequestError as exc:
+        logger.error(f"Auth network error for user='{user_str}': {exc}")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Unable to reach DisasterAWARE authentication service: {exc}",
         ) from exc
 
     if resp.status_code in (401, 403):
+        logger.warning(f"Auth rejected (HTTP {resp.status_code}) for user='{user_str}'")
         raise HTTPException(
             status_code=resp.status_code,
             detail="Invalid DisasterAWARE Pro username or password.",
         )
 
     if resp.status_code >= 400:
+        logger.warning(f"Auth returned HTTP {resp.status_code} for user='{user_str}'")
         raise HTTPException(
             status_code=resp.status_code,
             detail=f"DisasterAWARE authentication returned HTTP {resp.status_code}.",
@@ -329,24 +402,35 @@ async def proxy_disasteraware_login(payload: LoginRequest):
     try:
         data = resp.json()
     except ValueError as exc:
+        logger.error(f"Auth returned invalid JSON for user='{user_str}'")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Invalid JSON response from DisasterAWARE authentication service.",
         ) from exc
 
+    logger.info(f"Auth successful for user='{user_str}'")
     return JSONResponse(status_code=resp.status_code, content=data)
 
 
 @app.post("/api/complete")
 async def record_completion(
     payload: CompleteRequest,
+    request: Request,
     authorization: Optional[str] = Header(default=None),
 ):
+    client_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or request.headers.get("x-real-ip")
+        or (request.client.host if request.client else "unknown")
+    )
     claims = await decode_and_verify_jwt(authorization)
     jwt_user = str(claims.get("sub", "")).strip().lower()
     req_user = payload.user.strip().lower()
 
     if jwt_user != req_user:
+        logger.warning(
+            f"Completion identity mismatch: JWT sub='{jwt_user}' != submitted user='{req_user}' [client={client_ip}]"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Identity mismatch: JWT sub '{jwt_user}' does not match submitted user '{req_user}'.",
@@ -366,6 +450,9 @@ async def record_completion(
         )
 
     if submitted_proof != expected_proof.lower():
+        logger.warning(
+            f"Completion verification failed (incorrect answer/proof): user='{jwt_user}', day='{maint_day}' [client={client_ip}]"
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Verification failed. Incorrect answer or incomplete stage progression.",
@@ -387,6 +474,9 @@ async def record_completion(
         ).fetchone()
 
         if row is not None:
+            logger.info(
+                f"Completion already recorded: user='{jwt_user}', day='{maint_day}', existing_rank=#{row['rank']}"
+            )
             return {
                 "status": "already_recorded",
                 "user": jwt_user,
@@ -400,12 +490,18 @@ async def record_completion(
             (maint_day,),
         ).fetchone()
         if existing_winner is not None:
+            logger.warning(
+                f"Completion rejected (winner already minted): user='{jwt_user}', day='{maint_day}', winner='{existing_winner['username']}'"
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Submissions closed! The official winner has already been minted for maintenance challenge {maint_day}.",
             )
 
         if now_dt > cutoff_dt:
+            logger.warning(
+                f"Completion rejected (post-cutoff): user='{jwt_user}', day='{maint_day}', cutoff='{cutoff_display}'"
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
@@ -438,6 +534,10 @@ async def record_completion(
             (maint_day, jwt_user),
         ).fetchone()
 
+    logger.info(
+        f"*** NEW COMPLETION RECORDED ***: user='{jwt_user}', day='{saved['maintenance_day']}', rank=#{saved['rank']} at {saved['completed_at']}"
+    )
+
     return {
         "status": "success",
         "user": jwt_user,
@@ -445,6 +545,7 @@ async def record_completion(
         "rank": saved["rank"],
         "recorded_at": saved["completed_at"],
     }
+
 
 
 def get_winner_dict(conn: sqlite3.Connection, maintenance_day: str) -> Optional[dict]:
@@ -725,9 +826,15 @@ async def get_leaderboard_path(
 
 @app.get("/api/riddle")
 async def get_riddle_info(
+    request: Request,
     day: str = Query(..., description="Maintenance day in YYYY-MM-DD format"),
     stage: int = Query(..., ge=1, le=25, description="Stage number (1-based)"),
 ):
+    client_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or request.headers.get("x-real-ip")
+        or (request.client.host if request.client else "unknown")
+    )
     challenges = load_challenges()
     config = challenges.get(day)
     if not config:
@@ -769,6 +876,9 @@ async def get_riddle_info(
         is_unlocked = False
 
     if not is_unlocked:
+        logger.info(
+            f"Riddle query: day='{day}', stage={stage}/{len(stages)} -> LOCKED (unlocks at {raw_release}) [client={client_ip}]"
+        )
         return {
             "status": "locked",
             "maintenance_day": day,
@@ -780,6 +890,9 @@ async def get_riddle_info(
         }
 
     # Unlocked stage
+    logger.info(
+        f"Riddle query: day='{day}', stage={stage}/{len(stages)} -> UNLOCKED [client={client_ip}]"
+    )
     answer = stage_info.get("answer", "")
     expected_hash = sha256_hex(answer.lower().strip())
     next_file = None
