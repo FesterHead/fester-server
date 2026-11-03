@@ -40,7 +40,9 @@ def load_challenges() -> dict:
 def get_default_maint_day(challenges: Optional[dict] = None) -> str:
     cfg = challenges if challenges is not None else load_challenges()
     if cfg:
-        return sorted(cfg.keys())[-1]
+        today = datetime.now(HST_TZ).strftime("%Y-%m-%d")
+        active_or_past = [d for d in sorted(cfg.keys()) if d <= today]
+        return active_or_past[-1] if active_or_past else sorted(cfg.keys())[0]
     return datetime.now(HST_TZ).strftime("%Y-%m-%d")
 
 
