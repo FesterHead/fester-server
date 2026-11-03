@@ -31,6 +31,9 @@ The stack includes the following services (all defined in `docker-compose.yaml`)
 | **Dockhand**               | `dockhand`             | 3210                | Docker container manager UI                      |
 | **Vaultwarden**            | `vaultwarden`          | –                   | Self-hosted Bitwarden-compatible password server |
 | **Vaultwarden Backup**     | `vaultwarden-backup`   | –                   | Automated encrypted backup to local NAS storage  |
+| **Forgejo**                | `forgejo`              | 3000, 2222 (SSH)    | Self-hosted lightweight Git service              |
+| **Forgejo Runner**         | `forgejo-runner`       | –                   | CI/CD runner for Forgejo Actions                 |
+| **Challenge Recorder**     | `challenge-recorder`   | – (via SWAG `/api`) | FastAPI service for weekly maintenance challenges|
 
 Each service is configured with health checks, proper volume mounts, and Slack notifications where applicable.
 
@@ -158,6 +161,21 @@ Trigger an immediate on-demand encrypted backup of Vaultwarden to the local NAS 
 docker exec vaultwarden-backup bash /app/backup.sh
 ```
 
+### Reset Maintenance Challenge completions (`challenge-recorder`)
+
+Clear all test completions for a specific maintenance challenge date (`YYYY-MM-DD`), or remove a single user's test entry and re-sequence ranks:
+
+```bash
+# Clear all completions for a maintenance date
+docker exec challenge-recorder python reset.py 2026-11-03
+
+# Remove a single user's test completion for a maintenance date
+docker exec challenge-recorder python reset.py 2026-11-03 skunitzer
+
+# Mint and lock the official immutable winner for a maintenance date
+docker exec challenge-recorder python winner.py 2026-11-03
+```
+
 ## Update Script
 
 A convenience script `update.sh` is provided to pull and restart individual services or all services at once.
@@ -200,6 +218,7 @@ Key environment variables (defined in `.env`):
 | `SLACK_HOOK`                    | Slack webhook for notifications    | `…`                    |
 | `DUCKDNS_SUBDOMAINS` / `TOKEN`  | DuckDNS configuration              | `…`                    |
 | `SWAG_URL` / `SWAG_EMAIL`       | Domain and email for Let's Encrypt | `…` / `…`              |
+| `FORGEJO_RUNNER_TOKEN`          | Forgejo Actions registration token | `…`                    |
 | `PORT_<SERVICE>`                | Host port mappings for services    | `8080`, `3333`, etc.   |
 
 See the `.env-template` file for the full list.

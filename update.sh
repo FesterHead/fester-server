@@ -29,6 +29,7 @@ function do_update() {
 }
 
 services=("bazarr" \
+          "challenge-recorder" \
           "container-mon" \
           "crosswatch" \
           "diun" \
@@ -37,6 +38,8 @@ services=("bazarr" \
           "duckdns" \
           "emby" \
           "flaresolverr" \
+          "forgejo" \
+          "forgejo-runner" \
           "homepage" \
           "prowlarr" \
           "radarr" \

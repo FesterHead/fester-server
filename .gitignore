@@ -1,14 +1,21 @@
 # Ignore the secret file
 .env
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # Ignore all subfolders (the container data)
 # This assumes the folders in your screenshot are data volumes
 bazarr/
+challenge-recorder/data/
 crosswatch/
 diun/
 dockhand/
 duckdns/
 emby/
+forgejo/
+forgejo-runner/
 homepage/
 portainer/
 prowlarr/
@@ -18,7 +25,10 @@ sabnzbd/
 seerr/
 servuo/
 sonarr/
-swag/
+swag/*
+!swag/www/
+swag/www/maintenance/*
+!swag/www/maintenance/fairness.html
 transmission-openvpn/
 transmission-rush/
 vaultwarden/

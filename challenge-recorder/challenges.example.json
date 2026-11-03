@@ -1,0 +1,31 @@
+{
+  "YYYY-MM-DD-random": {
+    "seed_prefix": "00000000-0000-4000-8000-000000000000:",
+    "strategy": "random",
+    "strategy_salt": "00000000-0000-4000-8000-111111111111",
+    "cutoff": "2026-11-05 12:00:00 HST",
+    "keys": [
+      "stage1key",
+      "stage2key",
+      "stage3key",
+      "stage4key",
+      "stage5key",
+      "stage6key"
+    ]
+  },
+  "YYYY-MM-DD-first": {
+    "seed_prefix": "00000000-0000-4000-8000-000000000000:",
+    "strategy": "first",
+    "strategy_salt": "00000000-0000-4000-8000-222222222222",
+    "cutoff": "2026-11-05 12:00:00 HST",
+    "answer": "singleriddleanswer"
+  },
+  "YYYY-MM-DD-nth": {
+    "seed_prefix": "00000000-0000-4000-8000-000000000000:",
+    "strategy": "nth",
+    "winner_n": 3,
+    "strategy_salt": "00000000-0000-4000-8000-333333333333",
+    "cutoff": "2026-11-05 12:00:00 HST",
+    "answer": "singleriddleanswer"
+  }
+}
