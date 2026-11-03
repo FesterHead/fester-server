@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-03
+
 ### Added
 - Added persistent rotating file logging to `/app/data/logs/challenge-recorder.log` (host directory `challenge-recorder/data/logs/`) with Hawaii Standard Time (`HST`) formatting across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py), auditing HTTP requests, riddle queries, puzzle completion rankings, winner minting, and database resets.
 - Added date-gated riddle unlocking endpoint (`/api/riddle`) to `challenge-recorder` supporting progressive daily challenge schedules and holding screens.
