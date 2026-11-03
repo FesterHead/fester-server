@@ -540,6 +540,7 @@ services:
     volumes:
       - "${SERVICE_DIR}/swag:/config"
       - "${SERVICE_DIR}/emby/logs:/logs/emby:ro"
+      - "${SERVICE_DIR}/vaultwarden/data/vaultwarden.log:/logs/vaultwarden/vaultwarden.log:ro"
     healthcheck:
       test: curl --fail http://localhost:80 || exit 1
       interval: 60s
@@ -633,8 +634,11 @@ services:
       start_period: 60s
       timeout: 10s
     environment:
+      - "LOG_FILE=/data/vaultwarden.log"
+      - "LOG_LEVEL=info"
+      - "EXTENDED_LOGGING=true"
       - "WEBSOCKET_ENABLED=true"
-      - "SIGNUPS_ALLOWED=true"
+      - "SIGNUPS_ALLOWED=false"
       - "INVITATIONS_ALLOWED=true"
       - "DOMAIN=https://${VW_URL}"
 
