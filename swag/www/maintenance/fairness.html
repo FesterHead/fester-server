@@ -212,7 +212,10 @@
     <div class="header-card">
       <div class="top-nav">
         <a id="backToLeaderboard" href="/api/leaderboard?day=2026-11-03&amp;f=html">&larr; Back to Leaderboard</a>
-        <span style="color: var(--muted);">Provably Fair Challenge Protocol</span>
+        <div>
+          <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank" rel="noopener noreferrer" style="margin-right: 1rem;">GitHub Source &nearr;</a>
+          <span style="color: var(--muted);">Provably Fair Challenge Protocol</span>
+        </div>
       </div>
       <h1>🔍 How Winner Selection &amp; Cryptographic Verification Works</h1>
       <p style="margin-bottom: 0;">
@@ -316,6 +319,16 @@ total = 8
 print("Selection Hash:", h)
 print("Winning Rank  : #", (int(h, 16) % total) + 1)
 '</pre>
+    </div>
+
+    <div class="section-card">
+      <h2>4. Open Source &amp; Auditable Service</h2>
+      <p>
+        The complete backend service that records challenge progression, validates cryptographic proof chains, and executes the provably fair winner minting logic is open source. You can audit the full codebase for <code>main.py</code>, <code>winner.py</code>, and <code>reset.py</code> on GitHub:
+      </p>
+      <p style="margin-bottom: 0;">
+        🔗 <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank" rel="noopener noreferrer" style="font-weight: bold;">https://github.com/FesterHead/fester-server/tree/main/challenge-recorder &nearr;</a>
+      </p>
     </div>
   </div>
 
