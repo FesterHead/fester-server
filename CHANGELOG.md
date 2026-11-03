@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-03
+
+### Added
+- Added open-source audit notices and GitHub repository links (`FesterHead/fester-server/tree/main/challenge-recorder`) to [swag/www/maintenance/fairness.html](swag/www/maintenance/fairness.html) (in the top navigation bar and a dedicated auditable service section) and all maintenance challenge login pages (`2026-11-03`, `2026-12-15`, `2027-01-05`, `2027-03-02`).
+
+### Changed
+- Clarified authentication and fair-play disclosures across maintenance challenge login pages to highlight direct browser authentication with `disasteraware.pdc.org` and verifiable zero credential transit.
+
 ## [1.5.0] - 2026-11-03
 
 ### Added
