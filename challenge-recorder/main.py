@@ -721,3 +721,82 @@ async def get_leaderboard_path(
     ),
 ):
     return render_leaderboard_response(maintenance_day, f)
+
+
+@app.get("/api/riddle")
+async def get_riddle_info(
+    day: str = Query(..., description="Maintenance day in YYYY-MM-DD format"),
+    stage: int = Query(..., ge=1, le=25, description="Stage number (1-based)"),
+):
+    challenges = load_challenges()
+    config = challenges.get(day)
+    if not config:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No challenge configuration found for maintenance day '{day}'.",
+        )
+
+    stages = config.get("stages")
+    if not stages or not isinstance(stages, list):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Challenge '{day}' does not have progressive stages configured.",
+        )
+
+    if stage < 1 or stage > len(stages):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Stage {stage} is out of bounds for challenge '{day}' (1..{len(stages)}).",
+        )
+
+    stage_info = stages[stage - 1]
+    raw_release = stage_info.get("release", "")
+    release_dt = None
+    if raw_release:
+        cleaned = re.sub(r"\s+HST$", "", raw_release, flags=re.IGNORECASE).strip()
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+            try:
+                release_dt = datetime.strptime(cleaned, fmt).replace(tzinfo=HST_TZ)
+                break
+            except ValueError:
+                pass
+
+    now_dt = datetime.now(HST_TZ)
+    now_hst = now_dt.strftime("%Y-%m-%d %H:%M:%S HST")
+
+    is_unlocked = True
+    if release_dt and now_dt < release_dt:
+        is_unlocked = False
+
+    if not is_unlocked:
+        return {
+            "status": "locked",
+            "maintenance_day": day,
+            "stage": stage,
+            "total_stages": len(stages),
+            "release_time": raw_release,
+            "server_time": now_hst,
+            "message": f"Stage {stage - 1} cleared! Riddle #{stage} unlocks at {raw_release}.",
+        }
+
+    # Unlocked stage
+    answer = stage_info.get("answer", "")
+    expected_hash = sha256_hex(answer.lower().strip())
+    next_file = None
+    if stage < len(stages):
+        next_file = sha256_hex(f"{day}-stage-{stage + 1}:{answer.lower().strip()}")[:16] + ".html"
+    else:
+        next_file = "victory"
+
+    return {
+        "status": "unlocked",
+        "maintenance_day": day,
+        "stage": stage,
+        "total_stages": len(stages),
+        "release_time": raw_release,
+        "server_time": now_hst,
+        "riddle": stage_info.get("riddle", ""),
+        "expected_hash": expected_hash,
+        "next_file": next_file,
+    }
+
