@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waihee River Gauge</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="darkreader-lock">
+  <link rel="icon" href="/favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #26354d;
+      --border-color: rgba(148, 163, 184, 0.14);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #22d3ee;
+      --status-green: #10b981;
+      --status-yellow: #f59e0b;
+      --status-red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 60%);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    @media (max-width: 960px) {
+      .header {
+        flex-wrap: wrap;
+      }
+    }
+
+    .header-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: nowrap;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--status-green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .status-badge.elevated {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--status-yellow);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .status-badge.high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--status-red);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .subtitle a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    .subtitle a:hover {
+      text-decoration: underline;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
+    }
+
+    .period-pills {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0 0.2rem;
+    }
+
+    .period-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      height: 30px;
+      padding: 0 0.7rem;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .period-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .period-btn.active {
+      background: var(--accent-blue);
+      color: #0f172a;
+    }
+
+    .site-select {
+      height: 38px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0 0.75rem;
+      border-radius: 10px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .site-select:hover,
+    .site-select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .refresh-box {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0 0.45rem 0 0.75rem;
+    }
+
+    .refresh-btn {
+      height: 28px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent-blue);
+      border-radius: 6px;
+      padding: 0 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .refresh-btn:hover {
+      background: var(--accent-blue);
+      color: #0f172a;
+    }
+
+    /* Error Banner */
+    #error {
+      display: none;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* Top Grid: Gauge + KPI Cards + Chart */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    /* Left Column: SVG Gauge + KPI Mini Grid */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 0.25rem 0 0.5rem;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      overflow: visible;
+    }
+
+    .gauge-needle {
+      transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: 150px 145px;
+    }
+
+    .gauge-readout {
+      text-align: center;
+      margin-top: -0.35rem;
+    }
+
+    .gauge-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .gauge-unit {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-left: 0.2rem;
+    }
+
+    .gauge-trend {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+      color: var(--text-secondary);
+    }
+
+    .trend-up { color: #f59e0b; }
+    .trend-down { color: #38bdf8; }
+    .trend-flat { color: #10b981; }
+
+    /* KPI 2x2 grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .kpi-box {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem;
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-val {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    /* Right Column: Chart */
+    .chart-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chart-toggles {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-label input {
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      min-height: 300px;
+    }
+
+    /* Table Section */
+    .table-header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .search-input {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .table-scroll {
+      max-height: 420px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: #0f172a;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.73rem;
+      letter-spacing: 0.04em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      transition: background 0.1s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    tbody td {
+      padding: 0.6rem 1rem;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .level-pill {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title-group">
+        <div class="title-row">
+          <h1 id="site-title">Waihee River Gauge</h1>
+          <span id="status-badge" class="status-badge">
+            <span class="status-dot"></span>
+            <span id="status-text">Loading...</span>
+          </span>
+        </div>
+        <div class="subtitle">
+          <span id="last-updated">Fetching latest USGS telemetry...</span>
+          <span>•</span>
+          <a id="usgs-link" href="https://waterdata.usgs.gov/monitoring-location/16614000/" target="_blank" rel="noopener">USGS Site 16614000 (Maui, HI) ↗</a>
+        </div>
+      </div>
+
+      <div class="controls-group">
+        <select id="site-select" class="site-select" aria-label="Select River Gauge">
+          <option value="16614000">Waihee River (abv Waihee Ditch)</option>
+          <option value="16604500">Wailuku River (at Kepaniwai Park)</option>
+          <option value="16605500">Wailuku River (at Iao Valley Rd)</option>
+        </select>
+        <div class="period-pills" role="group" aria-label="Time Period">
+          <button class="period-btn" data-period="PT6H">6H</button>
+          <button class="period-btn active" data-period="PT12H">12H</button>
+          <button class="period-btn" data-period="PT24H">24H</button>
+          <button class="period-btn" data-period="P3D">3D</button>
+          <button class="period-btn" data-period="P7D">7D</button>
+        </div>
+        <div class="refresh-box">
+          <span>Reloads in <strong id="countdown">05:00</strong></span>
+          <button class="refresh-btn" id="refresh-now">Refresh</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="error"></div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Gauge & KPIs -->
+      <div class="left-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Current Gage Height</span>
+            <span id="gauge-scale-label" style="font-size: 0.75rem; color: var(--text-muted);">Scale 0–10 ft</span>
+          </div>
+          <div class="gauge-wrapper">
+            <svg class="gauge-svg" viewBox="0 0 300 175">
+              <!-- Track Arcs (Center: 150, 145, Radius: 110) -->
+              <!-- Green: 0 to 4 ft (180° to 252°) -->
+              <path d="M 40 145 A 110 110 0 0 1 116.01 40.38" fill="none" stroke="#10b981" stroke-width="22" stroke-linecap="butt" />
+              <!-- Yellow: 4 to 7 ft (252° to 306°) -->
+              <path d="M 116.01 40.38 A 110 110 0 0 1 214.66 56.01" fill="none" stroke="#f59e0b" stroke-width="22" stroke-linecap="butt" />
+              <!-- Red: 7 to 10 ft (306° to 360°) -->
+              <path d="M 214.66 56.01 A 110 110 0 0 1 260 145" fill="none" stroke="#ef4444" stroke-width="22" stroke-linecap="butt" />
+
+              <!-- Tick Labels -->
+              <text id="tick-0" x="20" y="148" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">0</text>
+              <text id="tick-1" x="45" y="72" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">2</text>
+              <text id="tick-2" x="108" y="25" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="middle">4</text>
+              <text id="tick-3" x="192" y="25" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="middle">6</text>
+              <text id="tick-4" x="255" y="72" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="start">8</text>
+              <text id="tick-5" x="280" y="148" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="start">10</text>
+
+              <!-- Needle (Points straight up at 0deg = 5 ft; -90deg = 0 ft; +90deg = 10 ft) -->
+              <g id="gauge-needle" class="gauge-needle" style="transform: rotate(-90deg);">
+                <polygon points="146,145 150,42 154,145" fill="#f8fafc" />
+                <circle cx="150" cy="145" r="11" fill="#38bdf8" stroke="#0f172a" stroke-width="3" />
+              </g>
+            </svg>
+
+            <div class="gauge-readout">
+              <div>
+                <span id="current-height" class="gauge-value">--</span>
+                <span class="gauge-unit">ft</span>
+              </div>
+              <div id="height-trend" class="gauge-trend">Calculating trend...</div>
+            </div>
+          </div>
+
+          <div class="kpi-grid" style="margin-top: 0.75rem;">
+            <div class="kpi-box">
+              <div class="kpi-label">Streamflow</div>
+              <div class="kpi-val"><span id="current-flow">--</span> <small style="font-size:0.75rem;font-weight:500;color:var(--text-secondary)">ft³/s</small></div>
+              <div class="kpi-sub" id="flow-sub">Discharge rate</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">1-Hour Change</div>
+              <div class="kpi-val" id="kpi-1h-delta">--</div>
+              <div class="kpi-sub" id="kpi-1h-sub">Last 60 mins</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">Period Peak</div>
+              <div class="kpi-val"><span id="kpi-max">--</span> <small style="font-size:0.75rem;font-weight:500;color:var(--text-secondary)">ft</small></div>
+              <div class="kpi-sub" id="kpi-max-time">--</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">Period Low</div>
+              <div class="kpi-val"><span id="kpi-min">--</span> <small style="font-size:0.75rem;font-weight:500;color:var(--text-secondary)">ft</small></div>
+              <div class="kpi-sub" id="kpi-min-time">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Chart -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <span class="card-title" id="chart-heading">Gage Height & Streamflow History (12H)</span>
+          <div class="chart-toggles">
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-flow" checked>
+              Show Streamflow (ft³/s)
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" id="toggle-lock-scale">
+              Lock 0–10 ft Scale
+            </label>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="riverChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw Data Table Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Recent Telemetry Log (<span id="row-count">0</span> readings)</span>
+        <div class="table-header-controls">
+          <input type="text" id="table-filter" class="search-input" placeholder="Filter by time or height...">
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Date & Time (HST)</th>
+              <th>Gage Height (ft)</th>
+              <th>5-Min Change</th>
+              <th>Streamflow (ft³/s)</th>
+              <th>Condition</th>
+            </tr>
+          </thead>
+          <tbody id="telemetry-tbody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-secondary);">Loading readings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_SITE = '16614000';
+    const SITES = {
+      '16614000': { name: 'Waihee River', maxScale: 10, yellowAt: 4, redAt: 7 },
+      '16604500': { name: 'Wailuku River (Kepaniwai Park)', maxScale: 10, yellowAt: 4, redAt: 7 },
+      '16605500': { name: 'Wailuku River (Iao Valley Rd)', maxScale: 20, yellowAt: 12, redAt: 15 }
+    };
+    const REFRESH_SECONDS = 300;
+
+    let currentSite = localStorage.getItem('rivergauge_site') || DEFAULT_SITE;
+    if (!SITES[currentSite]) currentSite = DEFAULT_SITE;
+
+    let currentPeriod = localStorage.getItem('rivergauge_period') || 'PT12H';
+    let countdownRemaining = REFRESH_SECONDS;
+    let chartInstance = null;
+    let cachedRows = [];
+    let cachedChartData = null;
+
+    // Initialize persisted UI controls
+    const siteSelectEl = document.getElementById('site-select');
+    siteSelectEl.value = currentSite;
+
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.period === currentPeriod);
+      if (btn.dataset.period === currentPeriod) {
+        document.getElementById('chart-heading').textContent = `Gage Height & Streamflow History (${btn.textContent})`;
+      }
+    });
+
+    const savedShowFlow = localStorage.getItem('rivergauge_show_flow');
+    if (savedShowFlow !== null) {
+      document.getElementById('toggle-flow').checked = savedShowFlow === 'true';
+    }
+    const savedLockScale = localStorage.getItem('rivergauge_lock_scale');
+    if (savedLockScale !== null) {
+      document.getElementById('toggle-lock-scale').checked = savedLockScale === 'true';
+    }
+
+    const dateFormatter = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    const shortTimeFormatter = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    function formatDateTime(isoStr) {
+      const d = new Date(isoStr);
+      return isNaN(d) ? isoStr : dateFormatter.format(d);
+    }
+
+    function formatShortTime(isoStr) {
+      const d = new Date(isoStr);
+      return isNaN(d) ? isoStr : shortTimeFormatter.format(d);
+    }
+
+    function getSiteConfig() {
+      return SITES[currentSite] || SITES[DEFAULT_SITE];
+    }
+
+    function getLevelCondition(ft) {
+      const cfg = getSiteConfig();
+      if (ft >= cfg.redAt) return { label: 'High Water', cls: 'high', color: '#ef4444' };
+      if (ft >= cfg.yellowAt) return { label: 'Elevated', cls: 'elevated', color: '#f59e0b' };
+      return { label: 'Normal', cls: 'normal', color: '#10b981' };
+    }
+
+    function updateGaugeScaleLabels() {
+      const max = getSiteConfig().maxScale;
+      document.getElementById('gauge-scale-label').textContent = `Scale 0–${max} ft`;
+      for (let i = 0; i <= 5; i++) {
+        document.getElementById(`tick-${i}`).textContent = Math.round((max / 5) * i);
+      }
+    }
+
+    async function fetchGaugeData(period = currentPeriod) {
+      const errBox = document.getElementById('error');
+      errBox.style.display = 'none';
+
+      updateGaugeScaleLabels();
+      const usgsLink = document.getElementById('usgs-link');
+      usgsLink.href = `https://waterdata.usgs.gov/monitoring-location/${currentSite}/`;
+      usgsLink.textContent = `USGS Site ${currentSite} (Maui, HI) ↗`;
+
+      const url = `https://waterservices.usgs.gov/nwis/iv/?sites=${currentSite}&period=${period}&format=json&parameterCd=00065,00060`;
+
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const seriesList = data?.value?.timeSeries || [];
+        const heightSeries = seriesList.find(s => s.variable?.variableCode?.[0]?.value === '00065');
+        const flowSeries = seriesList.find(s => s.variable?.variableCode?.[0]?.value === '00060');
+
+        if (!heightSeries || !heightSeries.values?.[0]?.value?.length) {
+          throw new Error('No gage height readings returned.');
+        }
+
+        const siteName = heightSeries.sourceInfo?.siteName || getSiteConfig().name;
+        document.getElementById('site-title').textContent = siteName;
+        document.title = siteName;
+
+        // Build chronological arrays (oldest -> newest)
+        const heightRaw = heightSeries.values[0].value
+          .map(v => ({ dateTime: v.dateTime, height: parseFloat(v.value) }))
+          .filter(v => !isNaN(v.height) && v.height > -999);
+
+        const flowMap = new Map();
+        if (flowSeries?.values?.[0]?.value) {
+          for (const v of flowSeries.values[0].value) {
+            const val = parseFloat(v.value);
+            if (!isNaN(val) && val > -999) {
+              flowMap.set(v.dateTime, val);
+            }
+          }
+        }
+
+        const merged = heightRaw.map((item, idx) => {
+          const prev = idx > 0 ? heightRaw[idx - 1].height : null;
+          const delta = prev !== null ? +(item.height - prev).toFixed(2) : 0;
+          return {
+            dateTime: item.dateTime,
+            formattedTime: formatDateTime(item.dateTime),
+            shortTime: formatShortTime(item.dateTime),
+            height: item.height,
+            delta,
+            flow: flowMap.get(item.dateTime) ?? null
+          };
+        });
+
+        updateDashboard(merged);
+        countdownRemaining = REFRESH_SECONDS;
+      } catch (err) {
+        errBox.textContent = `Gauge data unavailable (${err.message}); stay broke!`;
+        errBox.style.display = 'block';
+      }
+    }
+
+    function updateDashboard(chronologicalRows) {
+      if (!chronologicalRows.length) return;
+
+      const latest = chronologicalRows[chronologicalRows.length - 1];
+      const cond = getLevelCondition(latest.height);
+      const maxScale = getSiteConfig().maxScale;
+
+      // Header status & timestamp
+      const badge = document.getElementById('status-badge');
+      badge.className = `status-badge ${cond.cls === 'normal' ? '' : cond.cls}`;
+      document.getElementById('status-text').textContent = cond.label;
+      document.getElementById('last-updated').textContent = `Latest reading: ${latest.formattedTime}`;
+
+      // Gauge needle (-90 deg = 0 ft, +90 deg = maxScale ft)
+      const clampedHeight = Math.max(0, Math.min(maxScale, latest.height));
+      const angle = -90 + (clampedHeight / maxScale) * 180;
+      document.getElementById('gauge-needle').style.transform = `rotate(${angle.toFixed(1)}deg)`;
+      document.getElementById('current-height').textContent = latest.height.toFixed(2);
+
+      // 1-Hour change (approx 12 readings ago at 5-min intervals)
+      const oneHourIdx = Math.max(0, chronologicalRows.length - 13);
+      const oneHourAgo = chronologicalRows[oneHourIdx];
+      const hrDelta = +(latest.height - oneHourAgo.height).toFixed(2);
+      const hrSign = hrDelta > 0 ? '+' : '';
+
+      const trendEl = document.getElementById('height-trend');
+      const kpi1hEl = document.getElementById('kpi-1h-delta');
+      const kpi1hSub = document.getElementById('kpi-1h-sub');
+
+      if (Math.abs(hrDelta) < 0.03) {
+        trendEl.innerHTML = `<span class="trend-flat">● Steady</span> (${hrSign}${hrDelta.toFixed(2)} ft/hr)`;
+        kpi1hEl.textContent = `${hrSign}${hrDelta.toFixed(2)} ft`;
+        kpi1hEl.className = 'kpi-val trend-flat';
+        kpi1hSub.textContent = 'Steady over last hour';
+      } else if (hrDelta > 0) {
+        trendEl.innerHTML = `<span class="trend-up">▲ Rising</span> (+${hrDelta.toFixed(2)} ft/hr)`;
+        kpi1hEl.textContent = `+${hrDelta.toFixed(2)} ft`;
+        kpi1hEl.className = 'kpi-val trend-up';
+        kpi1hSub.textContent = 'Rising over last hour';
+      } else {
+        trendEl.innerHTML = `<span class="trend-down">▼ Falling</span> (${hrDelta.toFixed(2)} ft/hr)`;
+        kpi1hEl.textContent = `${hrDelta.toFixed(2)} ft`;
+        kpi1hEl.className = 'kpi-val trend-down';
+        kpi1hSub.textContent = 'Falling over last hour';
+      }
+
+      // Streamflow KPI
+      document.getElementById('current-flow').textContent = latest.flow !== null ? latest.flow.toLocaleString() : 'N/A';
+
+      // Min & Max KPI
+      let minRow = chronologicalRows[0];
+      let maxRow = chronologicalRows[0];
+      for (const r of chronologicalRows) {
+        if (r.height > maxRow.height) maxRow = r;
+        if (r.height < minRow.height) minRow = r;
+      }
+      document.getElementById('kpi-max').textContent = maxRow.height.toFixed(2);
+      document.getElementById('kpi-max-time').textContent = maxRow.shortTime;
+      document.getElementById('kpi-min').textContent = minRow.height.toFixed(2);
+      document.getElementById('kpi-min-time').textContent = minRow.shortTime;
+
+      // Render Chart (chronological left-to-right!)
+      cachedChartData = chronologicalRows;
+      renderChart(chronologicalRows);
+
+      // Render Table (newest first!)
+      cachedRows = [...chronologicalRows].reverse();
+      renderTable();
+    }
+
+    function renderChart(rows) {
+      const ctx = document.getElementById('riverChart').getContext('2d');
+      const showFlow = document.getElementById('toggle-flow').checked;
+      const lockScale = document.getElementById('toggle-lock-scale').checked;
+
+      const labels = rows.map(r => r.shortTime);
+      const heights = rows.map(r => r.height);
+      const flows = rows.map(r => r.flow);
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+      gradient.addColorStop(0, 'rgba(56, 189, 248, 0.42)');
+      gradient.addColorStop(1, 'rgba(56, 189, 248, 0.01)');
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      const datasets = [
+        {
+          label: 'Gage Height (ft)',
+          data: heights,
+          borderColor: '#38bdf8',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0.3,
+          yAxisID: 'y'
+        }
+      ];
+
+      if (showFlow && flows.some(f => f !== null)) {
+        datasets.push({
+          label: 'Streamflow (ft³/s)',
+          data: flows,
+          borderColor: 'rgba(16, 185, 129, 0.75)',
+          borderDash: [4, 4],
+          borderWidth: 1.8,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          fill: false,
+          tension: 0.3,
+          yAxisID: 'y1'
+        });
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 8 }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#f8fafc',
+              bodyColor: '#e2e8f0',
+              borderColor: 'rgba(148, 163, 184, 0.25)',
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(148, 163, 184, 0.08)' },
+              ticks: { color: '#94a3b8', maxTicksLimit: 8, maxRotation: 0 }
+            },
+            y: {
+              type: 'linear',
+              position: 'left',
+              min: lockScale ? 0 : undefined,
+              max: lockScale ? getSiteConfig().maxScale : undefined,
+              suggestedMin: 1.5,
+              suggestedMax: 6,
+              title: { display: true, text: 'Gage Height (ft)', color: '#38bdf8' },
+              grid: { color: 'rgba(148, 163, 184, 0.12)' },
+              ticks: { color: '#94a3b8' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              display: showFlow && flows.some(f => f !== null),
+              title: { display: true, text: 'Streamflow (ft³/s)', color: '#10b981' },
+              grid: { drawOnChartArea: false },
+              ticks: { color: '#10b981' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable() {
+      const filterText = document.getElementById('table-filter').value.trim().toLowerCase();
+      const tbody = document.getElementById('telemetry-tbody');
+
+      const filtered = cachedRows.filter(r =>
+        !filterText ||
+        r.formattedTime.toLowerCase().includes(filterText) ||
+        r.height.toFixed(2).includes(filterText)
+      );
+
+      document.getElementById('row-count').textContent = filtered.length;
+
+      tbody.innerHTML = filtered.map(r => {
+        const cond = getLevelCondition(r.height);
+        const deltaStr = r.delta === 0
+          ? '<span style="color:var(--text-muted)">0.00</span>'
+          : r.delta > 0
+            ? `<span class="trend-up">+${r.delta.toFixed(2)}</span>`
+            : `<span class="trend-down">${r.delta.toFixed(2)}</span>`;
+
+        return `
+          <tr>
+            <td>${r.formattedTime}</td>
+            <td><strong>${r.height.toFixed(2)}</strong> ft</td>
+            <td>${deltaStr}</td>
+            <td>${r.flow !== null ? r.flow.toLocaleString() + ' ft³/s' : '—'}</td>
+            <td><span class="level-pill" style="background:${cond.color}"></span>${cond.label}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Event Listeners
+    siteSelectEl.addEventListener('change', () => {
+      currentSite = siteSelectEl.value;
+      localStorage.setItem('rivergauge_site', currentSite);
+      fetchGaugeData(currentPeriod);
+    });
+
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPeriod = btn.dataset.period;
+        localStorage.setItem('rivergauge_period', currentPeriod);
+        document.getElementById('chart-heading').textContent = `Gage Height & Streamflow History (${btn.textContent})`;
+        fetchGaugeData(currentPeriod);
+      });
+    });
+
+    document.getElementById('refresh-now').addEventListener('click', () => {
+      fetchGaugeData(currentPeriod);
+    });
+
+    document.getElementById('toggle-flow').addEventListener('change', (e) => {
+      localStorage.setItem('rivergauge_show_flow', e.target.checked);
+      if (cachedChartData) renderChart(cachedChartData);
+    });
+
+    document.getElementById('toggle-lock-scale').addEventListener('change', (e) => {
+      localStorage.setItem('rivergauge_lock_scale', e.target.checked);
+      if (cachedChartData) renderChart(cachedChartData);
+    });
+
+    document.getElementById('table-filter').addEventListener('input', renderTable);
+
+    // Countdown Timer (fetches in background without full page flash)
+    setInterval(() => {
+      countdownRemaining--;
+      if (countdownRemaining <= 0) {
+        fetchGaugeData(currentPeriod);
+        countdownRemaining = REFRESH_SECONDS;
+      }
+      const mins = String(Math.floor(countdownRemaining / 60)).padStart(2, '0');
+      const secs = String(countdownRemaining % 60).padStart(2, '0');
+      document.getElementById('countdown').textContent = `${mins}:${secs}`;
+    }, 1000);
+
+    // Initial Load
+    fetchGaugeData(currentPeriod);
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>kunitzer.me</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="darkreader-lock">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --border-color: rgba(148, 163, 184, 0.14);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 65%);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 2.5rem 2.25rem;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .nav-links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .nav-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .btn-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 0.9rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.18s ease;
+    }
+
+    .btn-link:hover {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-link span.arrow {
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .userbar-section {
+      width: 100%;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .userbar-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .userbar-img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .userbar-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div>
+      <h1>kunitzer.me</h1>
+    </div>
+
+    <div class="nav-links">
+      <div class="nav-label">Looking for</div>
+      <a class="btn-link" href="/festerhead/" title="FesterHead.com">
+        <span>📻 FesterHead Radio</span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="btn-link" href="/rivergauge.html" title="Maui River Gauges">
+        <span>🌊 Maui River Gauges</span>
+        <span class="arrow">→</span>
+      </a>
+      <a class="btn-link" href="/wordle/" title="Rush Wordle">
+        <span>🟩 Rush Wordle</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <div class="userbar-section">
+      <img id="userbar" class="userbar-img" src="/userbars/1.jpg" title="FesterHead is a RUSH fan! (Click for another)" alt="FesterHead is a RUSH fan!" />
+      <span class="userbar-hint">Click userbar to shuffle</span>
+    </div>
+  </main>
+
+  <script>
+    const TOTAL_USERBARS = 41;
+    const userbarEl = document.getElementById('userbar');
+    function pickRandomUserbar() {
+      const n = Math.floor(Math.random() * TOTAL_USERBARS) + 1;
+      userbarEl.src = `/userbars/${n}.jpg`;
+    }
+    pickRandomUserbar();
+    userbarEl.addEventListener('click', pickRandomUserbar);
+  </script>
+</body>
+</html>

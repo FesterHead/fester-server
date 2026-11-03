@@ -7,8 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- Added `challenge-recorder` FastAPI service to [docker-compose.yaml](docker-compose.yaml), [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md) with SWAG reverse-proxy routing (`/api/`) for DisasterAWARE Pro JWT verification, cryptographic challenge proof validation, SQLite leaderboard persistence, and a database reset utility ([challenge-recorder/reset.py](challenge-recorder/reset.py)).
 - Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_HTTP`, `PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`, `DOCKER_GID`) in [.env](.env) and [.env-template](.env-template).
 - Added `forgejo` and `forgejo-runner` to [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md).
+- Added `swag/www/` static web content (excluding `swag/www/maintenance/`) to repository tracking via [.gitignore](.gitignore) and modernized [swag/www/rivergauge.html](swag/www/rivergauge.html), [swag/www/index.html](swag/www/index.html), [swag/www/festerhead/index.html](swag/www/festerhead/index.html), and [swag/www/wordle/index.html](swag/www/wordle/index.html) (including Rush Wordle customizations and Double Secret Probation mode).
 
 ## [1.4.0] - 2026-09-30
 

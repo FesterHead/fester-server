@@ -29,6 +29,7 @@ function do_update() {
 }
 
 services=("bazarr" \
+          "challenge-recorder" \
           "container-mon" \
           "crosswatch" \
           "diun" \
