@@ -6,7 +6,7 @@ Lightweight Python/FastAPI service that verifies DisasterAWARE Pro JWT tokens an
 
 ## 1. Directory & Data Files
 
-- `main.py` — FastAPI application (`/api/complete`, `/api/leaderboard`, `/api/auth/login`, `/api/health`).
+- `main.py` — FastAPI application (`/api/complete`, `/api/leaderboard`, `/api/riddle`, `/api/health`).
 - `winner.py` — CLI utility to mint and lock the official challenge winner for a maintenance date (`random`, `first`, or `nth` strategy).
 - `reset.py` — CLI utility to reset completions (and any test-minted winner) in SQLite for a given maintenance date or single user.
 - `challenges.example.json` — Template showing how weekly challenge keys/answers and winner strategies are configured.

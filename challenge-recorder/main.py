@@ -22,8 +22,6 @@ DB_PATH = os.environ.get("DB_PATH", "/app/data/completions.db")
 CHALLENGES_CONFIG_PATH = os.environ.get("CHALLENGES_CONFIG_PATH", "/app/data/challenges.json")
 LOGS_DIR = os.environ.get("LOGS_DIR", "/app/data/logs")
 LOG_FILE = os.path.join(LOGS_DIR, "challenge-recorder.log")
-DISASTERAWARE_LOGIN_URL = "https://disasteraware.pdc.org/jwt/v1/auth/login"
-DISASTERAWARE_VALIDATE_URL = "https://disasteraware.pdc.org/jwt/v1/auth/validate"
 DISASTERAWARE_JWKS_ISSUER = "https://disasteraware.pdc.org/jwt/jwks.json"
 HST_TZ = timezone(timedelta(hours=-10), name="HST")
 
@@ -281,11 +279,6 @@ async def request_logging_middleware(request: Request, call_next):
 
 
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-
 class CompleteRequest(BaseModel):
     user: str = Field(..., min_length=1)
     proof: Optional[str] = Field(default=None, description="Rolling SHA-256 proof chain")
@@ -357,59 +350,6 @@ async def decode_and_verify_jwt(authorization: Optional[str]) -> dict:
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
-
-
-@app.post("/api/auth/login")
-async def proxy_disasteraware_login(payload: LoginRequest, request: Request):
-    client_ip = (
-        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
-        or request.headers.get("x-real-ip")
-        or (request.client.host if request.client else "unknown")
-    )
-    user_str = payload.username.strip().lower()
-    logger.info(f"Auth attempt for user='{user_str}' [client={client_ip}]")
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(
-                DISASTERAWARE_LOGIN_URL,
-                json={"username": payload.username, "password": payload.password},
-                headers={
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-            )
-    except httpx.RequestError as exc:
-        logger.error(f"Auth network error for user='{user_str}': {exc}")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Unable to reach DisasterAWARE authentication service: {exc}",
-        ) from exc
-
-    if resp.status_code in (401, 403):
-        logger.warning(f"Auth rejected (HTTP {resp.status_code}) for user='{user_str}'")
-        raise HTTPException(
-            status_code=resp.status_code,
-            detail="Invalid DisasterAWARE Pro username or password.",
-        )
-
-    if resp.status_code >= 400:
-        logger.warning(f"Auth returned HTTP {resp.status_code} for user='{user_str}'")
-        raise HTTPException(
-            status_code=resp.status_code,
-            detail=f"DisasterAWARE authentication returned HTTP {resp.status_code}.",
-        )
-
-    try:
-        data = resp.json()
-    except ValueError as exc:
-        logger.error(f"Auth returned invalid JSON for user='{user_str}'")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Invalid JSON response from DisasterAWARE authentication service.",
-        ) from exc
-
-    logger.info(f"Auth successful for user='{user_str}'")
-    return JSONResponse(status_code=resp.status_code, content=data)
 
 
 @app.post("/api/complete")
