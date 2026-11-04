@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+- Configured `INVITATIONS_ALLOWED=false` for `vaultwarden` in [docker-compose.yaml](docker-compose.yaml) to ensure `disableUserRegistration` evaluates to `true` and the "Create account" button is hidden from the web vault landing page when SMTP mail is disabled.
+
 ## [1.5.1] - 2026-11-03
 
 ### Added
