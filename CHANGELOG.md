@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- Added comprehensive PEP 257 / Google-style docstrings, module architecture headers, and detailed inline comments across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py) documenting authentication flows, cryptographic proof verification, League of Entropy drand beacon integration, database transactions, and administrative reset routines.
 - Added [swag/www/robots.txt](swag/www/robots.txt) configured to disallow all web crawlers and automated scrapers across the domain.
 
 ### Changed
