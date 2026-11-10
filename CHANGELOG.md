@@ -6,14 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-10
+
 ### Added
-- Added practice mode expiration notice banners (`#cutoff-banner`) across all maintenance challenge login pages (`2026-11-03`, `2026-12-01`, `2027-01-05`, `2027-03-02`), clearly notifying participants when an event's submission deadline has passed while preserving access for unranked practice playthroughs.
+- Added practice mode expiration notice banners (`#cutoff-banner`) across all maintenance challenge login pages, clearly notifying participants when an event's submission deadline has passed while preserving access for unranked practice playthroughs.
 - Added `is_closed` boolean indicator to the `challenge-recorder` `/api/leaderboard` JSON endpoint ([challenge-recorder/main.py](challenge-recorder/main.py)) evaluating submission cutoff timestamp and winner minting status.
 - Added comprehensive PEP 257 / Google-style docstrings, module architecture headers, and detailed inline comments across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py) documenting authentication flows, cryptographic proof verification, League of Entropy drand beacon integration, database transactions, and administrative reset routines.
-- Added [swag/www/robots.txt](swag/www/robots.txt) configured to disallow all web crawlers and automated scrapers across the domain.
+- Added robots.txt configured to disallow all web crawlers and automated scrapers across the domain.
 
 ### Changed
-- Updated the 2026-12-01 maintenance challenge winner strategy from "first" to provably fair "random" in [challenge-recorder/data/challenges.json](challenge-recorder/data/challenges.json), synchronized challenge announcements in [swag/www/maintenance/2026-12-01-2ae44a00/login.html](swag/www/maintenance/2026-12-01-2ae44a00/login.html) and [swag/www/maintenance/2026-12-01-2ae44a00/blurb-0eee155b.txt](swag/www/maintenance/2026-12-01-2ae44a00/blurb-0eee155b.txt), and removed the obsolete "first" finisher strategy documentation and browser audit logic from [swag/www/maintenance/fairness.html](swag/www/maintenance/fairness.html).
+- Updated future maintenance challenge winner strategy from "first" to provably fair "random", synchronized challenge announcements in login pages and announcement blurbs, and removed the obsolete "first" finisher strategy documentation and browser audit logic from [swag/www/maintenance/fairness.html](swag/www/maintenance/fairness.html).
 - Configured `INVITATIONS_ALLOWED=false` for `vaultwarden` in [docker-compose.yaml](docker-compose.yaml) to ensure `disableUserRegistration` evaluates to `true` and the "Create account" button is hidden from the web vault landing page when SMTP mail is disabled.
 
 ## [1.5.1] - 2026-11-03
@@ -30,7 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added persistent rotating file logging to `/app/data/logs/challenge-recorder.log` (host directory `challenge-recorder/data/logs/`) with Hawaii Standard Time (`HST`) formatting across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py), auditing HTTP requests, riddle queries, puzzle completion rankings, winner minting, and database resets.
 - Added date-gated riddle unlocking endpoint (`/api/riddle`) to `challenge-recorder` supporting progressive daily challenge schedules and holding screens.
 - Added `challenge-recorder` FastAPI service to [docker-compose.yaml](docker-compose.yaml), [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md) with SWAG reverse-proxy routing (`/api/`) for DisasterAWARE Pro JWT verification, cryptographic challenge proof validation, SQLite leaderboard persistence, and a database reset utility ([challenge-recorder/reset.py](challenge-recorder/reset.py)).
-- Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_HTTP`, `PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`, `DOCKER_GID`) in [.env](.env) and [.env-template](.env-template).
+- Added `forgejo` (LTS v15) and `forgejo-runner` (v13) services to [docker-compose.yaml](docker-compose.yaml) with container monitoring labels, DNS resolution, healthchecks, and environment configurations (`PORT_FORGEJO_HTTP`, `PORT_FORGEJO_SSH`, `FORGEJO_RUNNER_TOKEN`, `DOCKER_GID`) in `.env` and [.env-template](.env-template).
 - Added `forgejo` and `forgejo-runner` to [update.sh](update.sh), [.gitignore](.gitignore), and [README.md](README.md).
 - Added `swag/www/` static web content (excluding `swag/www/maintenance/`) to repository tracking via [.gitignore](.gitignore) and modernized [swag/www/rivergauge.html](swag/www/rivergauge.html), [swag/www/index.html](swag/www/index.html), [swag/www/festerhead/index.html](swag/www/festerhead/index.html), and [swag/www/wordle/index.html](swag/www/wordle/index.html) (including Rush Wordle customizations and Double Secret Probation mode).
 
@@ -40,12 +42,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.4.0] - 2026-09-30
 
 ### Added
-- Added `vaultwarden` and `vaultwarden-backup` services to [docker-compose.yaml](docker-compose.yaml) providing self-hosted Bitwarden-compatible password management and automated 7-Zip encrypted backups to local NAS storage (`${DATA_DIR}/vaultwarden`) via rclone and supercronic, with healthchecks, DNS resolution, and parameterized domain configuration (`VW_URL`) and backup passphrase (`VW_BACKUP_ZIP_PW`) in [.env](.env) and [.env-template](.env-template).
+- Added `vaultwarden` and `vaultwarden-backup` services to [docker-compose.yaml](docker-compose.yaml) providing self-hosted Bitwarden-compatible password management and automated 7-Zip encrypted backups to local NAS storage (`${DATA_DIR}/vaultwarden`) via rclone and supercronic, with healthchecks, DNS resolution, and parameterized domain configuration (`VW_URL`) and backup passphrase (`VW_BACKUP_ZIP_PW`) in `.env` and [.env-template](.env-template).
 - Added `vaultwarden` and `vaultwarden-backup` to [update.sh](update.sh) and [README.md](README.md), including instructions for on-demand manual backup execution.
 
 ### Removed
 - Extracted the `servuo` service from [docker-compose.yaml](docker-compose.yaml) into its own dedicated standalone repository ([FesterUO](https://github.com/FesterHead/FesterUO)), running as an independent Compose stack on the same host environment.
-- Removed `servuo` service entries, update hooks, port variables, and documentation from [update.sh](update.sh), [README.md](README.md), [.env](.env), and [.env-template](.env-template).
+- Removed `servuo` service entries, update hooks, port variables, and documentation from [update.sh](update.sh), [README.md](README.md), `.env`, and [.env-template](.env-template).
 
 ## [1.3.0] - 2026-09-16
 
@@ -56,7 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - Added Git workflow and commit rules to [AGENTS.md](AGENTS.md) and [.github/copilot-instructions.md](.github/copilot-instructions.md) specifying user-managed commits and no automated git commands.
-- Added environment variable configurations to [.env](.env) and [.env-template](.env-template) for DNS resolvers (`DNS_PRIMARY`, `DNS_SECONDARY`), Docker daemon socket (`DOCKER_SOCK`), host home directory (`HOST_HOME_DIR`), Emby hardware transcoding GIDs (`EMBY_GIDLIST`), Transmission limits, and host port mappings (`PORT_<SERVICE>`).
+- Added environment variable configurations to `.env` and [.env-template](.env-template) for DNS resolvers (`DNS_PRIMARY`, `DNS_SECONDARY`), Docker daemon socket (`DOCKER_SOCK`), host home directory (`HOST_HOME_DIR`), Emby hardware transcoding GIDs (`EMBY_GIDLIST`), Transmission limits, and host port mappings (`PORT_<SERVICE>`).
 
 ### Changed
 - Replaced hardcoded host path in `dockhand` volume mapping with `${SERVICE_DIR}:${SERVICE_DIR}` in `docker-compose.yaml`.
