@@ -815,7 +815,10 @@ def render_leaderboard_response(maintenance_day: Optional[str], fmt: str):
     day = (maintenance_day or get_default_maint_day()).strip()
     output_format = (fmt or "json").strip().lower()
     commitment = compute_strategy_commitment(day)
-    _, cutoff_display = get_cutoff_info(day)
+    if day.lower() == "all":
+        cutoff_dt, cutoff_display = None, "N/A"
+    else:
+        cutoff_dt, cutoff_display = get_cutoff_info(day)
 
     # Query completions and winner details
     with get_db() as conn:
@@ -1028,9 +1031,12 @@ def render_leaderboard_response(maintenance_day: Optional[str], fmt: str):
         return HTMLResponse(content=html_doc, status_code=200)
 
     # Render JSON view
+    now_dt = datetime.now(HST_TZ)
+    is_closed = (cutoff_dt is not None and now_dt > cutoff_dt) or (winner_info is not None)
     return {
         "maintenance_day": day,
         "cutoff": cutoff_display,
+        "is_closed": is_closed,
         "strategy_commitment": commitment,
         "winner": winner_info,
         "total_completions": len(completions),

@@ -272,8 +272,7 @@
       <h2>1. The "Sealed Envelope" (Pre-Committed Strategy Hash)</h2>
       <p>
         Before a maintenance challenge even opens, the administrator configures the winning rule for that day (for
-        example: <code>random</code>, <code>first</code>, or a secret <code>nth</code> finisher like 5th place) along
-        with a secret random salt.
+        example: <code>random</code> or a secret <code>nth</code> finisher like 5th place) along with a secret random salt.
       </p>
       <div class="analogy-box">
         <strong>The Sealed Envelope Analogy:</strong><br />
@@ -292,7 +291,7 @@ strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strateg
       <ul>
         <li><strong>Why you can't guess it beforehand:</strong> Because <code>&lt;secret_salt&gt;</code> is a random
           UUID kept on the server until the winner is minted, players cannot brute-force the SHA-256 hash to peek at
-          whether the day's rule is <code>random</code>, <code>first</code>, or <code>nth</code>.</li>
+          whether the day's rule is <code>random</code> or <code>nth</code>.</li>
         <li><strong>Why the admin cannot change it afterward:</strong> SHA-256 is a one-way cryptographic hash function.
           Changing even a single character (such as changing <code>n=5</code> to <code>n=3</code> or switching
           <code>nth</code> to <code>random</code>) completely scrambles the resulting 64-character hex hash. When the
@@ -303,9 +302,9 @@ strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strateg
     </div>
 
     <div class="section-card">
-      <h2>2. The Three Winner Selection Strategies</h2>
+      <h2>2. The Winner Selection Strategies</h2>
       <p>
-        Each maintenance challenge day uses one of three pre-committed strategies. Once the administrator runs the
+        Each maintenance challenge day uses one of two pre-committed strategies. Once the administrator runs the
         minting command, the winner is permanently locked in the database (<code>INSERT OR IGNORE</code>) and cannot be
         re-run or altered.
       </p>
@@ -336,17 +335,7 @@ strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strateg
         </div>
 
         <div class="strategy-item">
-          <h3>🥇 Strategy B: First Finisher (<code>first</code>)</h3>
-          <p>
-            The most straightforward race: the very first authenticated user to complete all stages (Rank
-            <code>#1</code> in database completion order) wins. Remember that repeat completions by the same user are
-            ignored (<code>INSERT OR IGNORE</code>), so your original completion timestamp and rank are permanently
-            preserved.
-          </p>
-        </div>
-
-        <div class="strategy-item">
-          <h3>😈 Strategy C: Secret N-th Finisher (<code>nth</code>)</h3>
+          <h3>😈 Strategy B: Secret N-th Finisher (<code>nth</code>)</h3>
           <p>
             Before the challenge begins, a specific finisher position <code>N</code> (for example, <code>n=5</code> for
             the 5th person to finish) is locked inside the pre-committed SHA-256 hash:
@@ -478,10 +467,7 @@ print("Winning Rank  : #", (int(h, 16) % total) + 1)
         const total = Number(w.total_completions);
         let computedRank = 1;
         let mathExplanation = "";
-        if (w.strategy === "first") {
-          computedRank = 1;
-          mathExplanation = `Strategy is <code>first</code> &rarr; Rank <strong>#1</strong>`;
-        } else if (w.strategy === "nth") {
+        if (w.strategy === "nth") {
           const nMatch = String(w.commitment_preimage).match(/:n=(\d+)$/);
           const nVal = nMatch ? Number(nMatch[1]) : 1;
           computedRank = ((nVal - 1) % total) + 1;

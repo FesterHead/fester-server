@@ -7,10 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- Added practice mode expiration notice banners (`#cutoff-banner`) across all maintenance challenge login pages (`2026-11-03`, `2026-12-01`, `2027-01-05`, `2027-03-02`), clearly notifying participants when an event's submission deadline has passed while preserving access for unranked practice playthroughs.
+- Added `is_closed` boolean indicator to the `challenge-recorder` `/api/leaderboard` JSON endpoint ([challenge-recorder/main.py](challenge-recorder/main.py)) evaluating submission cutoff timestamp and winner minting status.
 - Added comprehensive PEP 257 / Google-style docstrings, module architecture headers, and detailed inline comments across [challenge-recorder/main.py](challenge-recorder/main.py), [challenge-recorder/winner.py](challenge-recorder/winner.py), and [challenge-recorder/reset.py](challenge-recorder/reset.py) documenting authentication flows, cryptographic proof verification, League of Entropy drand beacon integration, database transactions, and administrative reset routines.
 - Added [swag/www/robots.txt](swag/www/robots.txt) configured to disallow all web crawlers and automated scrapers across the domain.
 
 ### Changed
+- Updated the 2026-12-01 maintenance challenge winner strategy from "first" to provably fair "random" in [challenge-recorder/data/challenges.json](challenge-recorder/data/challenges.json), synchronized challenge announcements in [swag/www/maintenance/2026-12-01-2ae44a00/login.html](swag/www/maintenance/2026-12-01-2ae44a00/login.html) and [swag/www/maintenance/2026-12-01-2ae44a00/blurb-0eee155b.txt](swag/www/maintenance/2026-12-01-2ae44a00/blurb-0eee155b.txt), and removed the obsolete "first" finisher strategy documentation and browser audit logic from [swag/www/maintenance/fairness.html](swag/www/maintenance/fairness.html).
 - Configured `INVITATIONS_ALLOWED=false` for `vaultwarden` in [docker-compose.yaml](docker-compose.yaml) to ensure `disableUserRegistration` evaluates to `true` and the "Create account" button is hidden from the web vault landing page when SMTP mail is disabled.
 
 ## [1.5.1] - 2026-11-03
