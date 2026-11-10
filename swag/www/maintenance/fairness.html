@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,9 +21,11 @@
       --green-light: #6ee7b7;
       --amber: #f59e0b;
     }
+
     * {
       box-sizing: border-box;
     }
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -33,17 +36,21 @@
       display: flex;
       justify-content: center;
     }
+
     .container {
       max-width: 880px;
       width: 100%;
     }
-    .header-card, .section-card {
+
+    .header-card,
+    .section-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.75rem;
       margin-bottom: 1.5rem;
     }
+
     .top-nav {
       display: flex;
       justify-content: space-between;
@@ -53,18 +60,22 @@
       margin-bottom: 1rem;
       font-size: 0.85rem;
     }
+
     a {
       color: var(--accent);
       text-decoration: none;
     }
+
     a:hover {
       text-decoration: underline;
     }
+
     h1 {
       margin: 0 0 0.5rem 0;
       font-size: 1.45rem;
       color: var(--accent);
     }
+
     h2 {
       margin: 0 0 0.85rem 0;
       font-size: 1.15rem;
@@ -72,25 +83,31 @@
       border-bottom: 1px solid var(--border);
       padding-bottom: 0.5rem;
     }
+
     h3 {
       margin: 1.25rem 0 0.5rem 0;
       font-size: 0.98rem;
       color: var(--green-light);
     }
+
     p {
       margin: 0 0 0.9rem 0;
       font-size: 0.9rem;
       color: #cbd5e1;
     }
-    ul, ol {
+
+    ul,
+    ol {
       margin: 0 0 1rem 0;
       padding-left: 1.4rem;
       font-size: 0.9rem;
       color: #cbd5e1;
     }
+
     li {
       margin-bottom: 0.45rem;
     }
+
     code {
       background: #1e293b;
       color: var(--accent);
@@ -99,6 +116,7 @@
       font-size: 0.84rem;
       word-break: break-all;
     }
+
     pre {
       background: #090d16;
       border: 1px solid var(--border-light);
@@ -112,6 +130,7 @@
       white-space: pre-wrap;
       word-break: break-all;
     }
+
     .verifier-bar {
       display: flex;
       gap: 0.6rem;
@@ -119,6 +138,7 @@
       flex-wrap: wrap;
       margin: 1rem 0;
     }
+
     .verifier-bar input {
       background: var(--panel);
       border: 1px solid var(--border-light);
@@ -129,6 +149,7 @@
       font-size: 0.88rem;
       width: 155px;
     }
+
     .verifier-bar button {
       background: var(--accent);
       color: #0b0f19;
@@ -140,9 +161,11 @@
       font-weight: bold;
       cursor: pointer;
     }
+
     .verifier-bar button:hover {
       opacity: 0.92;
     }
+
     .audit-box {
       background: var(--panel);
       border: 1px solid var(--border-light);
@@ -151,14 +174,17 @@
       margin-top: 1rem;
       font-size: 0.84rem;
     }
+
     .audit-step {
       padding: 0.65rem 0;
       border-bottom: 1px dashed #1e293b;
     }
+
     .audit-step:last-child {
       border-bottom: none;
       padding-bottom: 0;
     }
+
     .badge-ok {
       display: inline-block;
       background: rgba(16, 185, 129, 0.16);
@@ -170,6 +196,7 @@
       font-size: 0.78rem;
       margin-bottom: 0.35rem;
     }
+
     .badge-sealed {
       display: inline-block;
       background: rgba(56, 189, 248, 0.14);
@@ -181,6 +208,7 @@
       font-size: 0.78rem;
       margin-bottom: 0.35rem;
     }
+
     .analogy-box {
       background: rgba(56, 189, 248, 0.07);
       border-left: 4px solid var(--accent);
@@ -190,36 +218,43 @@
       font-size: 0.88rem;
       color: #dbeafe;
     }
+
     .strategy-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 1rem;
       margin-top: 0.75rem;
     }
+
     .strategy-item {
       background: var(--panel);
       border: 1px solid var(--border-light);
       border-radius: 8px;
       padding: 1rem 1.15rem;
     }
+
     .strategy-item h3 {
       margin-top: 0;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header-card">
       <div class="top-nav">
         <a id="backToLeaderboard" href="/api/leaderboard?day=2026-11-03&amp;f=html">&larr; Back to Leaderboard</a>
         <div>
-          <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank" rel="noopener noreferrer" style="margin-right: 1rem;">GitHub Source &nearr;</a>
+          <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank"
+            rel="noopener noreferrer" style="margin-right: 1rem;">GitHub Source &nearr;</a>
           <span style="color: var(--muted);">Provably Fair Challenge Protocol</span>
         </div>
       </div>
       <h1>🔍 How Winner Selection &amp; Cryptographic Verification Works</h1>
       <p style="margin-bottom: 0;">
-        Every Post-Maintenance Challenge uses a <strong>commit-reveal cryptographic protocol</strong> and public randomness so that winner selection is 100% transparent, immutable, and mathematically verifiable by any participant—with zero possibility of playing favorites or moving the goalposts.
+        Every Maintenance Challenge uses a <strong>commit-reveal cryptographic protocol</strong> and public randomness
+        so that winner selection is 100% transparent, immutable, and mathematically verifiable by any participant—with
+        zero possibility of playing favorites or moving the goalposts.
       </p>
 
       <div class="verifier-bar">
@@ -236,42 +271,63 @@
     <div class="section-card">
       <h2>1. The "Sealed Envelope" (Pre-Committed Strategy Hash)</h2>
       <p>
-        Before a maintenance challenge even opens, the administrator configures the winning rule for that day (for example: <code>random</code>, <code>first</code>, or a secret <code>nth</code> finisher like 5th place) along with a secret random salt.
+        Before a maintenance challenge even opens, the administrator configures the winning rule for that day (for
+        example: <code>random</code> or a secret <code>nth</code> finisher like 5th place) along with a secret random salt.
       </p>
       <div class="analogy-box">
-        <strong>The Sealed Envelope Analogy:</strong><br/>
-        Imagine writing <em>"The 5th person to finish wins — Secret Code #8891"</em> on a card, sealing it inside a tamper-proof envelope, and taping it to the front of the room before anyone starts solving the puzzle. Nobody can see through the envelope while playing, so everyone tries their best—<strong>but the host also cannot swap out the card after seeing who finished 5th!</strong>
+        <strong>The Sealed Envelope Analogy:</strong><br />
+        Imagine writing <em>"The 5th person to finish wins — Secret Code #8891"</em> on a card, sealing it inside a
+        tamper-proof envelope, and taping it to the front of the room before anyone starts solving the puzzle. Nobody
+        can see through the envelope while playing, so everyone tries their best—<strong>but the host also cannot swap
+          out the card after seeing who finished 5th!</strong>
       </div>
       <p>
-        In digital form, that sealed envelope is the <strong>Strategy Commitment (SHA-256)</strong> hash displayed at the top of the leaderboard from minute one:
+        In digital form, that sealed envelope is the <strong>Strategy Commitment (SHA-256)</strong> hash displayed at
+        the top of the leaderboard from minute one:
       </p>
       <pre>strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strategy=&lt;strategy&gt;")
 # Or for the N-th finisher strategy:
 strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strategy=nth:n=&lt;N&gt;")</pre>
       <ul>
-        <li><strong>Why you can't guess it beforehand:</strong> Because <code>&lt;secret_salt&gt;</code> is a random UUID kept on the server until the winner is minted, players cannot brute-force the SHA-256 hash to peek at whether the day's rule is <code>random</code>, <code>first</code>, or <code>nth</code>.</li>
-        <li><strong>Why the admin cannot change it afterward:</strong> SHA-256 is a one-way cryptographic hash function. Changing even a single character (such as changing <code>n=5</code> to <code>n=3</code> or switching <code>nth</code> to <code>random</code>) completely scrambles the resulting 64-character hex hash. When the winner is minted, the full unhashed string (the <strong>Commitment Preimage</strong>) is published on the leaderboard so anyone can hash it and confirm it matches the exact <code>strategy_commitment</code> that was visible all day.</li>
+        <li><strong>Why you can't guess it beforehand:</strong> Because <code>&lt;secret_salt&gt;</code> is a random
+          UUID kept on the server until the winner is minted, players cannot brute-force the SHA-256 hash to peek at
+          whether the day's rule is <code>random</code> or <code>nth</code>.</li>
+        <li><strong>Why the admin cannot change it afterward:</strong> SHA-256 is a one-way cryptographic hash function.
+          Changing even a single character (such as changing <code>n=5</code> to <code>n=3</code> or switching
+          <code>nth</code> to <code>random</code>) completely scrambles the resulting 64-character hex hash. When the
+          winner is minted, the full unhashed string (the <strong>Commitment Preimage</strong>) is published on the
+          leaderboard so anyone can hash it and confirm it matches the exact <code>strategy_commitment</code> that was
+          visible all day.</li>
       </ul>
     </div>
 
     <div class="section-card">
-      <h2>2. The Three Winner Selection Strategies</h2>
+      <h2>2. The Winner Selection Strategies</h2>
       <p>
-        Each maintenance challenge day uses one of three pre-committed strategies. Once the administrator runs the minting command, the winner is permanently locked in the database (<code>INSERT OR IGNORE</code>) and cannot be re-run or altered.
+        Each maintenance challenge day uses one of two pre-committed strategies. Once the administrator runs the
+        minting command, the winner is permanently locked in the database (<code>INSERT OR IGNORE</code>) and cannot be
+        re-run or altered.
       </p>
 
       <div class="strategy-grid">
         <div class="strategy-item">
           <h3>🎲 Strategy A: Provably Fair Random (<code>random</code>)</h3>
           <p>
-            When a challenge states a random winner will be chosen from everyone who finishes, how do you know the admin didn't just click "pick random winner" ten times until their favorite person popped up?
+            When a challenge states a random winner will be chosen from everyone who finishes, how do you know the admin
+            didn't just click "pick random winner" ten times until their favorite person popped up?
           </p>
           <p>
-            Instead of using a private random number generator, the minting script fetches the latest public pulse from the <strong><a href="https://drand.love/" target="_blank" rel="noopener noreferrer">League of Entropy (drand)</a></strong>—an independent, distributed randomness beacon operated by Cloudflare, EPFL, Protocol Labs, and global universities that publishes a verifiable cryptographic signature every 30 seconds.
+            Instead of using a private random number generator, the minting script fetches the latest public pulse from
+            the <strong><a href="https://drand.love/" target="_blank" rel="noopener noreferrer">League of Entropy
+                (drand)</a></strong>—an independent, distributed randomness beacon operated by Cloudflare, EPFL,
+            Protocol Labs, and global universities that publishes a verifiable cryptographic signature every 30 seconds.
           </p>
           <ol>
-            <li>The script fetches the current <code>drand_round</code> and <code>drand_randomness</code> (which anyone can verify directly at <code>https://api.drand.sh/public/&lt;round&gt;</code>).</li>
-            <li>It combines the revealed <code>commitment_preimage</code>, the <code>drand</code> beacon values, and the ordered list of all finishers (<code>1:alice,2:bob,...</code>) into a single string and hashes it with SHA-256 to produce the <strong>Selection Hash</strong>.</li>
+            <li>The script fetches the current <code>drand_round</code> and <code>drand_randomness</code> (which anyone
+              can verify directly at <code>https://api.drand.sh/public/&lt;round&gt;</code>).</li>
+            <li>It combines the revealed <code>commitment_preimage</code>, the <code>drand</code> beacon values, and the
+              ordered list of all finishers (<code>1:alice,2:bob,...</code>) into a single string and hashes it with
+              SHA-256 to produce the <strong>Selection Hash</strong>.</li>
             <li>The winning rank is determined purely by modulo arithmetic on that 256-bit hash:
               <pre>winning_rank = (int(selection_hash, 16) % total_completions) + 1</pre>
             </li>
@@ -279,24 +335,22 @@ strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strateg
         </div>
 
         <div class="strategy-item">
-          <h3>🥇 Strategy B: First Finisher (<code>first</code>)</h3>
+          <h3>😈 Strategy B: Secret N-th Finisher (<code>nth</code>)</h3>
           <p>
-            The most straightforward race: the very first authenticated user to complete all stages (Rank <code>#1</code> in database completion order) wins. Remember that repeat completions by the same user are ignored (<code>INSERT OR IGNORE</code>), so your original completion timestamp and rank are permanently preserved.
-          </p>
-        </div>
-
-        <div class="strategy-item">
-          <h3>😈 Strategy C: Secret N-th Finisher (<code>nth</code>)</h3>
-          <p>
-            Before the challenge begins, a specific finisher position <code>N</code> (for example, <code>n=5</code> for the 5th person to finish) is locked inside the pre-committed SHA-256 hash:
+            Before the challenge begins, a specific finisher position <code>N</code> (for example, <code>n=5</code> for
+            the 5th person to finish) is locked inside the pre-committed SHA-256 hash:
           </p>
           <pre>commitment_preimage = "&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strategy=nth:n=5"</pre>
           <p>
-            <strong>What if fewer than <code>N</code> people complete the challenge?</strong> The selection formula uses modular wrap-around across the total number of finishers so there is always a valid winner without human intervention:
+            <strong>What if fewer than <code>N</code> people complete the challenge?</strong> The selection formula uses
+            modular wrap-around across the total number of finishers so there is always a valid winner without human
+            intervention:
           </p>
           <pre>winning_rank = ((N - 1) % total_completions) + 1</pre>
           <p style="margin-bottom: 0;">
-            Because <code>n=5</code> is baked into the <code>Commitment Preimage</code>, revealing the winner proves beyond a shadow of a doubt that <code>N</code> was chosen before the challenge started—not after looking at the leaderboard!
+            Because <code>n=5</code> is baked into the <code>Commitment Preimage</code>, revealing the winner proves
+            beyond a shadow of a doubt that <code>N</code> was chosen before the challenge started—not after looking at
+            the leaderboard!
           </p>
         </div>
       </div>
@@ -305,7 +359,9 @@ strategy_commitment = SHA256("&lt;secret_salt&gt;:day=&lt;YYYY-MM-DD&gt;:strateg
     <div class="section-card">
       <h2>3. Verify It Yourself in Your Terminal</h2>
       <p>
-        Don't trust this web page either? You can verify both the <strong>Strategy Commitment</strong> and the <strong>Winning Rank</strong> from any Linux, macOS, or WSL terminal using standard <code>sha256sum</code> and <code>python3</code>:
+        Don't trust this web page either? You can verify both the <strong>Strategy Commitment</strong> and the
+        <strong>Winning Rank</strong> from any Linux, macOS, or WSL terminal using standard <code>sha256sum</code> and
+        <code>python3</code>:
       </p>
       <pre id="cliSnippet"># 1. Verify that the revealed Commitment Preimage matches the Strategy Commitment hash:
 echo -n "PASTE_COMMITMENT_PREIMAGE_HERE" | sha256sum
@@ -324,10 +380,15 @@ print("Winning Rank  : #", (int(h, 16) % total) + 1)
     <div class="section-card">
       <h2>4. Open Source &amp; Auditable Service</h2>
       <p>
-        The complete backend service that records challenge progression, validates cryptographic proof chains, and executes the provably fair winner minting logic is open source. You can audit the full codebase for <code>main.py</code>, <code>winner.py</code>, and <code>reset.py</code> on GitHub:
+        The complete backend service that records challenge progression, validates cryptographic proof chains, and
+        executes the provably fair winner minting logic is open source. You can audit the full codebase for
+        <code>main.py</code>, <code>winner.py</code>, and <code>reset.py</code> on GitHub:
       </p>
       <p style="margin-bottom: 0;">
-        🔗 <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank" rel="noopener noreferrer" style="font-weight: bold;">https://github.com/FesterHead/fester-server/tree/main/challenge-recorder &nearr;</a>
+        🔗 <a href="https://github.com/FesterHead/fester-server/tree/main/challenge-recorder" target="_blank"
+          rel="noopener noreferrer"
+          style="font-weight: bold;">https://github.com/FesterHead/fester-server/tree/main/challenge-recorder
+          &nearr;</a>
       </p>
     </div>
   </div>
@@ -406,10 +467,7 @@ print("Winning Rank  : #", (int(h, 16) % total) + 1)
         const total = Number(w.total_completions);
         let computedRank = 1;
         let mathExplanation = "";
-        if (w.strategy === "first") {
-          computedRank = 1;
-          mathExplanation = `Strategy is <code>first</code> &rarr; Rank <strong>#1</strong>`;
-        } else if (w.strategy === "nth") {
+        if (w.strategy === "nth") {
           const nMatch = String(w.commitment_preimage).match(/:n=(\d+)$/);
           const nVal = nMatch ? Number(nMatch[1]) : 1;
           computedRank = ((nVal - 1) % total) + 1;
@@ -475,5 +533,5 @@ print("Selection Hash:", h)
     });
   </script>
 </body>
-</html>
 
+</html>

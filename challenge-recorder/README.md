@@ -1,6 +1,6 @@
-# Post-Maintenance Challenge Recorder (`challenge-recorder`)
+# Maintenance Challenge Recorder (`challenge-recorder`)
 
-Lightweight Python/FastAPI service that verifies DisasterAWARE Pro JWT tokens and cryptographic completion proofs (or single-stage riddle answers) for weekly post-maintenance challenges, persisting completion ranks, HST timestamps, and immutable cryptographically verifiable winners in SQLite (`/app/data/completions.db`).
+Lightweight Python/FastAPI service that verifies DisasterAWARE Pro JWT tokens and cryptographic completion proofs (or single-stage riddle answers) for maintenance challenges, persisting completion ranks, HST timestamps, and immutable cryptographically verifiable winners in SQLite (`/app/data/completions.db`).
 
 ---
 
@@ -9,8 +9,8 @@ Lightweight Python/FastAPI service that verifies DisasterAWARE Pro JWT tokens an
 - `main.py` — FastAPI application (`/api/complete`, `/api/leaderboard`, `/api/riddle`, `/api/health`).
 - `winner.py` — CLI utility to mint and lock the official challenge winner for a maintenance date (`random`, `first`, or `nth` strategy).
 - `reset.py` — CLI utility to reset completions (and any test-minted winner) in SQLite for a given maintenance date or single user.
-- `challenges.example.json` — Template showing how weekly challenge keys/answers and winner strategies are configured.
-- `data/challenges.json` *(git-ignored)* — Live weekly challenge configuration loaded dynamically on every request (no container rebuild or restart required when adding new weekly challenges).
+- `challenges.example.json` — Template showing how challenge keys/answers and winner strategies are configured.
+- `data/challenges.json` *(git-ignored)* — Live challenge configuration loaded dynamically on every request (no container rebuild or restart required when adding new challenges).
 - `data/completions.db` *(git-ignored)* — SQLite database storing verified completions and immutable winners per `maintenance_day`.
 
 ---
@@ -46,7 +46,7 @@ docker exec challenge-recorder python reset.py 2026-11-03
 
 ### Delete only a single user's test completion for a date (and re-sequence remaining ranks)
 ```bash
-docker exec challenge-recorder python reset.py 2026-11-03 skunitzer
+docker exec challenge-recorder python reset.py 2026-11-03 <username>
 ```
 
 ---

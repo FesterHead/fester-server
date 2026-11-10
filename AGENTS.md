@@ -73,6 +73,7 @@ When adding or modifying services in `docker-compose.yaml`, adhere strictly to t
 
 - Document all structural, service, and configuration changes in [CHANGELOG.md](CHANGELOG.md).
 - Adhere to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+- **No Links to Gitignored Files**: Never create Markdown links to files or directories that are matched by [.gitignore](.gitignore) (such as `.env`, data volumes like `challenge-recorder/data/`, or untracked challenge files in `swag/www/maintenance/`) in [CHANGELOG.md](CHANGELOG.md), [README.md](README.md), or other documentation. These links break when viewed on GitHub. Always reference gitignored paths using plain inline code (e.g., `.env`, `challenge-recorder/data/challenges.json`).
 
 ### Git Workflow & Commit Rules
 

@@ -639,7 +639,7 @@ services:
       - "EXTENDED_LOGGING=true"
       - "WEBSOCKET_ENABLED=true"
       - "SIGNUPS_ALLOWED=false"
-      - "INVITATIONS_ALLOWED=true"
+      - "INVITATIONS_ALLOWED=false"
       - "DOMAIN=https://${VW_URL}"
 
   vaultwarden-backup:
